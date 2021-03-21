@@ -1,0 +1,2 @@
+2021-03-21T14:00:03.572Z modulA:fonkC:log C içinde LOG kaydı
+2021-03-21T14:00:03.575Z modulA:fonkC:info C içinde INFO kaydı

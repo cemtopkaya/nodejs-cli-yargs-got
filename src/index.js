@@ -1,7 +1,34 @@
+#!/usr/bin/env node
+
 const got = require("got");
 const yargs = require("yargs");
 
+const pinoDebug = require('pino-debug')
+pinoDebug(logger, {
+  prettyPrint: true,
+  level: process.env.LOG_LEVEL || 'info',
+  auto: true, // default
+  map: {
+    'example:server': 'info',
+    'express:router': 'debug',
+    '*': 'trace' // everything else - trace
+  }
+})
+
+const pino = require('pino');
+const logger = pino({
+  prettyPrint: true,
+  level: process.env.LOG_LEVEL || 'info'
+});
+
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
+
+const LOG_LEVEL = {
+  TYPE1: 'VERBOSE',
+  TYPE1: 'DEBUG',
+  TYPE2: 'INFO',
+  TYPE3: 'QUITE'
+}
 
 const yargsModule = {
   mainCommands: [
@@ -49,20 +76,24 @@ const yargsModule = {
   },
   httpModule: {
     patch: async function (host, entity, data, cert = null) {
+
+      const log = logger.child({ method: 'yargsModule.patch' })
       const url = `https://${host}/nrf-settings/v1/${entity}`;
-      console.log(">> patch >> url: ", url, data);
-      // console.log(">> patch >> url: ", url, JSON.parse(data));
+
       try {
         const { headers, body } = await got.patch(url, {
           http2: true,
-          json: data,
+          json: typeof (data) == 'string' ? JSON.parse(data) : data,
           responseType: "json",
         });
-        console.log(headers);
-        console.log(body);
+        log.debug('%o',headers);
+        log.debug(body);
       } catch (error) {
         console.log(error);
       }
+      log.debug('url: %s', url);
+      log.debug('typeof(data): %s', typeof (data));
+      log.debug('data: %o', data);
     },
 
     put: async function (host, entity, data, cert = null) {
@@ -100,22 +131,22 @@ const yargsModule = {
       case "get":
         delete options.file;
         delete options.data;
+        logger.debug('>> argumentHandle: get: options: %o', options);
         break;
       case "set":
         // options = { ...options };
+        logger.debug('>> argumentHandle: set: options: %o', options);
         break;
       case "modify":
         if (y.argv.f) {
-          console.log(">>>>>>>>>>> ", y.argv.f)
           options.data.demandOption = false
         }
-        // options = { ...options };
+        logger.debug('>> argumentHandle: modify: options: %o', options);
         break;
       default:
         console.error("Bu komutu bilemedim :( ");
         break;
     }
-    console.log(">>>>>>>>>>> options:", options)
 
     return y.positional("entity", {
       describe: "Varlık adı",
@@ -143,20 +174,21 @@ const yargsModule = {
     }
   },
   readData: function (argv) {
-
-    console.log("* readData --------------> ", argv)
+    logger.debug('>> readData: argv: %o', argv);
     if (argv.file) {
       let file = argv.file
       const parseData = str => {
-          console.log("* parseData > str --------------> "+str)
-          argv.data = JSON.parse(str+'')
-        }
-        
-        if (file === '-') {
-        console.log("* readData file--------------> '"+ argv.file+"'")
+        logger.debug('>> readData: parseData: str: %s', str);
+        argv.data = JSON.parse(str + '')
+        logger.debug('>> readData: parseData: argv.data: %o', argv.data);
+      }
+
+      if (file === '-') {
+        logger.debug('>> readData: from stdin.pipe');
         const concat = require('mississippi').concat;
         process.stdin.pipe(concat(parseData));
       } else {
+        logger.debug('>> readData: from file: ', file);
         require('fs').readFile(file, (err, dataBuffer) => {
           if (err) {
             throw err;

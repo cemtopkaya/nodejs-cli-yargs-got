@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "bin": {
-    "uygulama": "./dist/index.js"
+    "cem": "./src/index.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -14,9 +14,13 @@
   "license": "ISC",
   "dependencies": {
     "chalk": "^4.1.0",
+    "debug": "^4.3.1",
     "got": "^11.8.2",
     "hpagent": "^0.1.1",
     "mississippi": "^4.0.0",
+    "pino": "^6.11.2",
+    "pino-debug": "^2.0.0",
+    "pino-pretty": "^4.7.1",
     "tunnel": "0.0.6",
     "yargs": "^16.2.0"
   }

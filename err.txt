@@ -1,0 +1,2 @@
+error ile stderr çıktısı
+process.stderr.write error ile stderr çıktısı
