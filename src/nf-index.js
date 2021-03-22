@@ -75,6 +75,13 @@ exports.cli = function cli(_scriptName, _urlParam1) {
                 desc: "Veriyi dosyadan girmek için dosya yolu, stdIn ile girmek için - kullanın",
                 nargs: 1,
             },
+            out: {
+                alias: 'o',
+                demandOption: false,
+                type: "string",
+                desc: "Sonucu dosyaya yazdırmamak için dosya yolu atanmalı",
+                nargs: 1,
+            },
             quite: {
                 alias: 'q',
                 demandOption: true,
@@ -220,6 +227,10 @@ exports.cli = function cli(_scriptName, _urlParam1) {
 
             if (!argv.quite) {
                 console.log(result)
+            }
+
+            if (!!argv.out) {
+                require('fs').writeFileSync(argv.out, JSON.stringify(result, null, 4))
             }
         },
         readData: function (argv, cb) {

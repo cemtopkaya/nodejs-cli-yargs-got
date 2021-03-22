@@ -1,0 +1,6 @@
+{
+    "Directory": "/var/log/cinar/nrf/",
+    "DisplayLog": true,
+    "FileName": "NRF",
+    "LogLevel": "DEBUG"
+}
