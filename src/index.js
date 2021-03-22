@@ -25,7 +25,6 @@ pinoDebug(pino, {
 })
 
 const debug = require('debug');
-const { fstat } = require("fs");
 const appInfo = debug('app:verbose:i')
 const appError = debug('app:verbose:e')
 
@@ -43,7 +42,7 @@ const yargsModule = {
   nefPaths: ["nfprofile", "general", "security", "logging", "nrf", "db"],
   optionsCommon: {
     dest: {
-      alias: "t",
+      alias: "d",
       demandOption: true,
       default: "localhost:8009",
       describe: "hedef sunucu adresi",
@@ -59,7 +58,7 @@ const yargsModule = {
       nargs: 1,
     },
     data: {
-      alias: "d",
+      alias: "dt",
       demandOption: true,
       describe: "Güncellenecek veri",
       // type: "string",
@@ -71,6 +70,14 @@ const yargsModule = {
       demandOption: false,
       type: "string",
       desc: "Veriyi dosyadan girmek için dosya yolu, stdIn ile girmek için - kullanın",
+      nargs: 1,
+    },
+    quite: {
+      alias: 'q',
+      demandOption: true,
+      default: false,
+      type: "boolean",
+      desc: "Sonucu ekrana yazdırmamak için true olarak atanmalı",
       nargs: 1,
     }
   },
@@ -93,6 +100,7 @@ const yargsModule = {
         });
         log({ headers, body })
         appInfo({ body })
+        return body
       } catch (error) {
         appError(error);
         throw error
@@ -112,6 +120,7 @@ const yargsModule = {
         });
         log({ headers, body })
         appInfo({ body })
+        return body
       } catch (error) {
         appError(error);
         throw error
@@ -130,6 +139,7 @@ const yargsModule = {
         });
         log({ headers, body })
         appInfo({ body })
+        return body
       } catch (error) {
         appError(error);
         throw error
@@ -170,23 +180,28 @@ const yargsModule = {
   },
   commandHandle: async function (argv) {
     const log = debug('yargsModule:commandHandle:d')
+    let result = null
     let data = null
 
     switch (argv._[0]) {
       case "get":
-        yargsModule.httpModule.get(argv.dest, argv.entity, argv.cert);
+        result = await yargsModule.httpModule.get(argv.dest, argv.entity, argv.cert);
         break;
       case "set":
         data = argv.data ? argv.data : await yargsModule.readData(argv)
-        await yargsModule.httpModule.put(argv.dest, argv.entity, data, argv.cert);
+        result = await yargsModule.httpModule.put(argv.dest, argv.entity, data, argv.cert);
         break;
       case "modify":
         data = argv.data ? argv.data : await yargsModule.readData(argv)
-        await yargsModule.httpModule.patch(argv.dest, argv.entity, data, argv.cert);
+        result = await yargsModule.httpModule.patch(argv.dest, argv.entity, data, argv.cert);
         break;
       default:
         appError("Bu komutu bilemedim :( ");
         break;
+    }
+
+    if (!argv.quite) {
+      console.log(result)
     }
   },
   readData: function (argv, cb) {
@@ -287,6 +302,15 @@ function init() {
   yargs
     .demandCommand(2, 2, 'Devam edebilmek için en az 2 komut yazmalısınız!')
     .check(argv => {
+
+      if (argv.quite) {
+        try {
+          Boolean(argv.quite)
+        } catch (err) {
+          return `"${argv.quite}" Sessiz çalışmayı belirleyen argüman Boolean tipine dönüştürülebilmelidir!`
+        }
+      }
+
       if (argv.data) {
         try {
           JSON.parse(argv.data)
