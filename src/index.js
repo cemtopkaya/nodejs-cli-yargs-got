@@ -1,34 +1,35 @@
 #!/usr/bin/env node
 
 const got = require("got");
-const yargs = require("yargs");
-
-const pinoDebug = require('pino-debug')
-pinoDebug(logger, {
-  prettyPrint: true,
-  level: process.env.LOG_LEVEL || 'info',
-  auto: true, // default
-  map: {
-    'example:server': 'info',
-    'express:router': 'debug',
-    '*': 'trace' // everything else - trace
-  }
-})
-
-const pino = require('pino');
-const logger = pino({
+const pino = require('pino')({
   prettyPrint: true,
   level: process.env.LOG_LEVEL || 'info'
 });
 
-process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
+const pinoDebug = require('pino-debug')
+pinoDebug(pino, {
+  auto: false, // default
+  map: {
+    // 'yargsModule:argumentHandle:i': 'info',
+    // 'yargsModule:commandHandle:i': 'info',
+    // 'yargsModule:httpModule:patch:d': 'info',
+    '*:httpModule:*:d': 'info',
+    '*:i': 'info',
+    '*:d': 'info',
+    '*:e': 'error',
+    '*:w': 'warning',
+    '*': 'trace',
+    'app:verbose:i': 'info',
+    'app:verbose:e': 'error',
+  }
+})
 
-const LOG_LEVEL = {
-  TYPE1: 'VERBOSE',
-  TYPE1: 'DEBUG',
-  TYPE2: 'INFO',
-  TYPE3: 'QUITE'
-}
+const debug = require('debug');
+const { fstat } = require("fs");
+const appInfo = debug('app:verbose:i')
+const appError = debug('app:verbose:e')
+
+process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
 
 const yargsModule = {
   mainCommands: [
@@ -47,26 +48,30 @@ const yargsModule = {
       default: "localhost:8009",
       describe: "hedef sunucu adresi",
       type: "string",
+      nargs: 1,
     },
-    cred: {
+    cert: {
       alias: "c",
       demandOption: true,
       default: "./localhost.crt",
       describe: "İstemcinin kendini tanıttığı sertifika",
       type: "string",
+      nargs: 1,
     },
     data: {
       alias: "d",
       demandOption: true,
       describe: "Güncellenecek veri",
       // type: "string",
-      string: true//always parse the address argument as a string
+      string: true, //always parse the address argument as a string
+      nargs: 1,
     },
     file: {
       alias: 'f',
       demandOption: false,
       type: "string",
-      desc: "Veriyi dosyadan girmek için dosya yolu, stdIn ile girmek için - kullanın"
+      desc: "Veriyi dosyadan girmek için dosya yolu, stdIn ile girmek için - kullanın",
+      nargs: 1,
     }
   },
   commonOptionsIncommand: () => {
@@ -76,9 +81,9 @@ const yargsModule = {
   },
   httpModule: {
     patch: async function (host, entity, data, cert = null) {
-
-      const log = logger.child({ method: 'yargsModule.patch' })
+      const log = debug('yargsModule:httpModule:patch:d')
       const url = `https://${host}/nrf-settings/v1/${entity}`;
+      log(">> patch >> url: %s >> data: %o", url, data);
 
       try {
         const { headers, body } = await got.patch(url, {
@@ -86,183 +91,252 @@ const yargsModule = {
           json: typeof (data) == 'string' ? JSON.parse(data) : data,
           responseType: "json",
         });
-        log.debug('%o',headers);
-        log.debug(body);
+        log({ headers, body })
+        appInfo({ body })
       } catch (error) {
-        console.log(error);
+        appError(error);
+        throw error
       }
-      log.debug('url: %s', url);
-      log.debug('typeof(data): %s', typeof (data));
-      log.debug('data: %o', data);
     },
 
     put: async function (host, entity, data, cert = null) {
+      const log = debug('yargsModule:httpModule:put:d')
       const url = `https://${host}/nrf-settings/v1/${entity}`;
-      console.log(">> patch >> url: ", url, JSON.parse(data));
+      log(">> put >> url: %s >> data: %o", url, data);
+
       try {
         const { headers, body } = await got.put(url, {
           http2: true,
-          json: data,
+          json: typeof (data) == 'string' ? JSON.parse(data) : data,
           responseType: "json",
         });
-        console.log(headers);
-        console.log(body);
+        log({ headers, body })
+        appInfo({ body })
       } catch (error) {
-        console.log(error);
+        appError(error);
+        throw error
       }
     },
 
     get: async function (host, entity, cert = null) {
+      const log = debug('yargsModule:httpModule:get:d')
       const url = `https://${host}/nrf-settings/v1/${entity}`;
-      console.log("url: ", url);
+      log(">> get >> url: %s", url);
 
       try {
-        const { headers, body } = await got(url, { http2: true });
-        console.log(headers);
-        console.log(body);
+        const { headers, body } = await got(url, {
+          http2: true,
+          responseType: "json"
+        });
+        log({ headers, body })
+        appInfo({ body })
       } catch (error) {
-        console.log(error);
+        appError(error);
+        throw error
       }
     },
   },
   argumentHandle: function (y) {
+    const log = debug('yargsModule:argumentHandle:d')
     let options = { ...yargsModule.optionsCommon };
     switch (y.argv._[0]) {
       case "get":
         delete options.file;
         delete options.data;
-        logger.debug('>> argumentHandle: get: options: %o', options);
         break;
       case "set":
-        // options = { ...options };
-        logger.debug('>> argumentHandle: set: options: %o', options);
-        break;
       case "modify":
-        if (y.argv.f) {
-          options.data.demandOption = false
-        }
-        logger.debug('>> argumentHandle: modify: options: %o', options);
+        options.data.demandOption = !!!y.argv.f
         break;
       default:
         console.error("Bu komutu bilemedim :( ");
         break;
     }
 
-    return y.positional("entity", {
-      describe: "Varlık adı",
-      demandOption: true,
-      type: "string",
-      choices: yargsModule.nefPaths,
-    }).options(options);
+    log(`${y.argv._[0]}: options: %o`, options);
+
+    return y
+      .positional("entity", {
+        describe: "Varlık adı",
+        // demandOption: true,
+        type: "string",
+        choices: yargsModule.nefPaths,
+      })
+      // .usage(`$0 ${y.argv._[0]} <entity> --dest --cert [file] [data]`)
+      // .example(`$0 ${y.argv._[0]} <entity> --dest localhost:8009 --cert ./localhost.crt --file ./data_put', 'Varlık bilgilerini çek`)
+      // .example(`$0 ${y.argv._[0]} <entity> -t localhost:8009 -c ./localhost.crt -f ./data_put', 'Varlık bilgilerini çek`)
+      // .example(`cat ./data_put | $0 ${y.argv._[0]} <entity> -t localhost:8009 -c ./localhost.crt -f -', 'Varlık bilgilerini çek`)
+      .options(options);
   },
-  commandHandle: function (arg) {
-    console.log("* commandHandle --------------> ", arg)
-    switch (arg._[0]) {
+  commandHandle: async function (argv) {
+    const log = debug('yargsModule:commandHandle:d')
+    let data = null
+
+    switch (argv._[0]) {
       case "get":
-        yargsModule.httpModule.get(arg.dest, arg.entity, arg.cert);
+        yargsModule.httpModule.get(argv.dest, argv.entity, argv.cert);
         break;
       case "set":
-        yargsModule.httpModule.put(arg.dest, arg.entity, arg.cert);
+        data = argv.data ? argv.data : await yargsModule.readData(argv)
+        await yargsModule.httpModule.put(argv.dest, argv.entity, data, argv.cert);
         break;
       case "modify":
-        yargsModule.readData(arg)
-        yargsModule.httpModule.patch(arg.dest, arg.entity, arg.data, arg.cert);
+        data = argv.data ? argv.data : await yargsModule.readData(argv)
+        await yargsModule.httpModule.patch(argv.dest, argv.entity, data, argv.cert);
         break;
       default:
-        console.error("Bu komutu bilemedim :( ");
+        appError("Bu komutu bilemedim :( ");
         break;
     }
   },
-  readData: function (argv) {
-    logger.debug('>> readData: argv: %o', argv);
-    if (argv.file) {
-      let file = argv.file
-      const parseData = str => {
-        logger.debug('>> readData: parseData: str: %s', str);
-        argv.data = JSON.parse(str + '')
-        logger.debug('>> readData: parseData: argv.data: %o', argv.data);
-      }
+  readData: function (argv, cb) {
+    return new Promise((res, rej) => {
 
-      if (file === '-') {
-        logger.debug('>> readData: from stdin.pipe');
-        const concat = require('mississippi').concat;
-        process.stdin.pipe(concat(parseData));
-      } else {
-        logger.debug('>> readData: from file: ', file);
-        require('fs').readFile(file, (err, dataBuffer) => {
-          if (err) {
-            throw err;
-          } else {
-            parseData(dataBuffer.toString());
+      const log = debug('yargsModule:readData:d')
+      log("%O", argv)
+      if (argv.file) {
+        let file = argv.file
+
+        const parseData = str => {
+          log('str: %s', str);
+          log('0 argv: %o', argv);
+          log('1 argv.data: %o', argv.data);
+          try {
+            data = JSON.parse(str + '')
+            res(data)
+          } catch (error) {
+            rej(error)
+            throw error
           }
-        });
-      }
-    }
+        }
 
+        if (file === '-') {
+          log('from stdin.pipe');
+          process.stdin.pipe(require('mississippi').concat(parseData));
+        } else {
+          log("from file: %s", file)
+          try {
+            parseData(require('fs').readFileSync(file).toString())
+          } catch (err) {
+            throw err;
+          }
+        }
+      }
+
+    })
   }
 }
 
+const commandDescs = {
+  get: {
+    desc: 'Verileri çekmek için',
+    options: ['dest', 'cert']
+  },
+  set: {
+    desc: 'Değer atamak için',
+    options: ['dest', 'cert', 'file', 'data']
+  },
+  delete: {
+    desc: 'Veri silmek için',
+    options: ['dest', 'cert', 'file', 'data']
+  },
+  modify: {
+    desc: 'Verileri güncellemek için',
+    options: ['dest', 'cert', 'file', 'data']
+  },
+}
+
+// .scriptName("cli-yargs")
+// .usage("Usage: $0 -w num -h num")
+// .example(
+//   "$0 -w 5 -h 6",
+//   "Returns the area (30) by multiplying the width with the height."
+// )
+// .option("w", {
+//   alias: "width",
+//   describe: "The width of the area.",
+//   demandOption: "The width is required.",
+//   type: "number",
+//   nargs: 1,
+// })
+// .argv
+
+function init() {
+  var yargs = require("yargs")
+    .wrap(120)
+    .usage(`$0 <command> <entity> --dest --cert [file] [data]`)
+
+  yargsModule.mainCommands.forEach((mainCommand) => {
+    // yargs
+    //   .example(`$0 ${mainCommand} <entity> --dest localhost:8009 --cert ./localhost.crt ${mainCommand == "get" ? "--file ./data_put" : ""}`, `${commandDescs[mainCommand].desc}`)
+    //   .example(`$0 ${mainCommand} <entity> -t localhost:8009 -c ./localhost.crt -f ./data_put`, `${commandDescs[mainCommand].desc}`)
+    //   .example(`cat ./data_put | $0 ${mainCommand} <entity> -t localhost:8009 -c ./localhost.crt -f -`, `${commandDescs[mainCommand].desc}`)
+  })
+
+  yargsModule.mainCommands.forEach((mainCommand) => {
+    yargs
+      .command(
+        // `${mainCommand} <entity> ${yargsModule.commonOptionsIncommand()}`,
+        `${mainCommand} <entity> [options]`,
+        `${commandDescs[mainCommand].desc}`,
+        yargsModule.argumentHandle,
+        yargsModule.commandHandle
+      )
+  });
+
+  yargs
+    .demandCommand(2, 2, 'Devam edebilmek için en az 2 komut yazmalısınız!')
+    .check(argv => {
+      if (argv.data) {
+        try {
+          JSON.parse(argv.data)
+        } catch (err) {
+          return `"${argv.data}" Veri JSON'a dönüştürülebilmelidir!`
+        }
+      }
+
+      if (argv.file && argv.file != '-') {
+        if (require('fs').existsSync(argv.file) == false)
+          return `"${argv.file}" Dosyası sistemde bulunamadı!`
+      }
 
 
-yargsModule.mainCommands.forEach((mainCommand) => {
-  yargs.command(
-    `${mainCommand} <entity> ${yargsModule.commonOptionsIncommand()}`,
-    "Çekmek için",
-    yargsModule.argumentHandle,
-    yargsModule.commandHandle
-  );
-});
+      if (argv.cert) {
+        if (require('fs').existsSync(argv.cert) == false)
+          return `"${argv.cert}" Sertifika dosyası sistemde bulunamadı!`
+      }
 
-let argv = yargs
-  .usage(`$0 komut <entity> ${yargsModule.commonOptionsIncommand()}`)
-  .help()
-  .alias('help', 'h')
-  .argv;
+      return true
+    })
+    .argv
+}
+
+init()
+
+function ornek() {
+  require("yargs")
+    .scriptName("cli-yargs")
+    .usage("Usage: $0 -w num -h num")
+    .example(
+      "$0 -w 5 -h 6",
+      "Returns the area (30) by multiplying the width with the height."
+    )
+    .option("w", {
+      alias: "width",
+      describe: "The width of the area.",
+      demandOption: "The width is required.",
+      type: "number",
+      nargs: 1,
+    })
+    .argv
+}
+// ornek()
 
 
 /**
- node .\src\index.js get security
+ * KOMUT ÖRNEKLERİ
+ * PATCH DB
+DEBUG=*:* node ./src/index.js modify db --data '[{ "op": "replace", "path": "/ConnectionPoolSize", "value": 6}]'
 
- node .\src\index.js set security -d '{"JWTAuthenticate":false,"MutualAuthenticate":false,"OAuth2":{"PrivateKey":"certificate/jwt.key","PublicKey":"certificate/jwt.pub"},"TLS":{"PrivateKey":"certificate/localhost.key"}}'
 
- node src/index.js modify security -d '[{ "op": "replace", "path": "/JWTAuthenticate", "value": true },{ "op": "replace", "path": "/MutualAuthenticate", "value": false },{ "op": "replace", "path": "/OAuth2/PrivateKey", "value": "certificate/jwt.key" },{ "op": "replace", "path": "/OAuth2/PublicKey", "value": "certificate/jwt.pub" },{ "op": "replace", "path": "/TLS/PrivateKey", "value": "certificate/localhost.key" }]'
-
- node src/index.js modify security -d='[{"op":"replace","path":"/JWTAuthenticate","value":true},{"op":"replace","path":"/MutualAuthenticate","value":false},{"op":"replace","path":"/OAuth2/PrivateKey","value":"certificate/jwt.key"},{"op":"replace","path":"/OAuth2/PublicKey","value":"certificate/jwt.pub"},{"op":"replace","path":"/TLS/PrivateKey","value":"certificate/localhost.key"}]'
-*/
-
-//   yargs.command(
-//     `get <entity> ${commonOptionsIncommand}`,
-//     "Çekmek için",
-//     (y) =>
-//       y
-//         .positional("entity", {
-//           describe: "Varlık adı",
-//           demandOption: true,
-//           type: "string",
-//           choices: entities,
-//         })
-//         .options(optionsCommon),
-//     (arg) => {
-//       console.log("Ekliyoruzzzz");
-//       retrieve(arg.dest, arg.entity);
-//     }
-//   );
-
-// yargs.command({
-//   command: "ADDget",
-//   describe: "get command",
-
-//   handler: () => {
-//     console.log("Ekliyoruzzzz");
-//   },
-// });
-
-// yargs.command({
-//   command: "REMOVE <PAGE|COMMENT> [id] [name]",
-//   describe: "silmek için remove kullan",
-
-//   handler: () => {
-//     console.log("Siliyoruzzz");
-//   },
-// });
-// console.log(yargs.help().argv);
+ */

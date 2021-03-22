@@ -1,0 +1,12 @@
+[
+    { "op": "replace", "path": "/ConnectionPoolSize", "value": 5},
+    { "op": "replace", "path": "/ConnectionRetryPeriod", "value": 95000},
+    { "op": "replace", "path": "/ConnectionTimeout", "value": 91000},
+    { "op": "replace", "path": "/DatabaseName", "value": "_cinarnrftest"},
+    { "op": "replace", "path": "/DatabaseType", "value": "_MONGO"},
+    { "op": "replace", "path": "/Password", "value": "_P5vKG6vE"},
+    { "op": "replace", "path": "/Port", "value": 930558},
+    { "op": "replace", "path": "/Server", "value": "109.10.21.12"},
+    { "op": "replace", "path": "/UserName", "value": "_cnrusr"},
+    { "op": "replace", "path":"/Tables", "value": ["_cinarnfcollection","_cinarsubscollection","_cinarnfstatecollection","test"]}
+]

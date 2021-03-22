@@ -1,0 +1,11 @@
+{
+    "JWTAuthenticate": true,
+    "MutualAuthenticate": true,
+    "OAuth2": {
+      "PrivateKey": "_certificate/jwt.key",
+      "PublicKey": "_certificate/jwt.pub"
+    },
+    "TLS": {
+      "PrivateKey": "_certificate/localhost.key"
+    }
+}

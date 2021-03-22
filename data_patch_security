@@ -1,0 +1,7 @@
+[
+  { "op": "replace", "path": "/JWTAuthenticate", "value": false},
+  { "op": "replace", "path": "/MutualAuthenticate", "value": false},
+  { "op": "replace", "path": "/OAuth2/PrivateKey", "value": "certificate/jwt.key"},
+  { "op": "replace", "path": "/OAuth2/PublicKey", "value": "certificate/jwt.pub"},
+  { "op": "replace", "path": "/TLS/PrivateKey", "value": "certificate/localhost.key"}
+]
