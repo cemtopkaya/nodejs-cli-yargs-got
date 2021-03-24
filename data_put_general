@@ -1,0 +1,9 @@
+{
+    "ClientCount": 225,
+    "ClientTimeout": 4000,
+    "HomePlmnId": {
+        "mcc": "001",
+        "mnc": "001"
+    },
+    "NumberofServingServerThreads": 6
+}

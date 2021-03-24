@@ -1,0 +1,5 @@
+[
+    { "op": "replace", "path": "/ClientCount", "value": 25},
+    { "op": "replace", "path": "/ClientTimeout", "value": 3000},
+    { "op": "replace", "path": "/HomePlmnId/mcc", "value": "002"}
+]

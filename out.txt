@@ -1,2 +1,0 @@
-log ile stdout çıktısı
-process.stdout.write log ile stdout çıktısı
