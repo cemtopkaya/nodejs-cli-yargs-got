@@ -11,7 +11,7 @@ let pinoDebugOptions = {
     auto: true, // default
     map: {
         [DEBUG_LABEL.APP_TRACE]: 'trace' // 10
-        , [DEBUG_LABEL.APP_DEBUG]: 'info' // 20
+        , [DEBUG_LABEL.APP_DEBUG]: 'debug' // 20
         , [DEBUG_LABEL.APP_INFO]: 'info'   // 30
         , [DEBUG_LABEL.APP_WARN]: 'warn'   // 40
         , [DEBUG_LABEL.APP_ERROR]: 'error' // 50

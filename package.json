@@ -21,9 +21,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm run build:nef && npm run build:nrf && npm run build:nssf",
-    "build:nef": "pkg ./src/nef.js -t node12-linux-x64 -o dist/cnrnef-cli",
-    "build:nrf": "pkg ./src/nrf.js -t node12-linux-x64 -o dist/cnrnrf-cli",
-    "build:nssf": "pkg ./src/nssf.js -t node12-linux-x64 -o dist/cnrnssf-cli"
+    "build:nef": "pkg ./src/nef.js -t node12-linux-x64 -o cnrnef-cli",
+    "build:nrf": "pkg ./src/nrf.js -t node12-linux-x64 -o cnrnrf-cli",
+    "build:nssf": "pkg ./src/nssf.js -t node12-linux-x64 -o cnrnssf-cli"
   },
   "keywords": [],
   "author": "",

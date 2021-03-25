@@ -11,7 +11,7 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
             dest: {
                 alias: "d",
                 demandOption: true,
-                default: "localhost:8009",
+                // default: "localhost:8009",
                 describe: "hedef sunucu adresi",
                 type: "string",
                 nargs: 1,
@@ -48,7 +48,7 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
             data: {
                 alias: "dt",
                 demandOption: true,
-                describe: "Güncellenecek veri",
+                describe: "Eklenecek/Güncellenecek/Silinecek veri",
                 // type: "string",
                 string: true, //always parse the address argument as a string
                 nargs: 1,
@@ -101,6 +101,25 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
                         responseType: "json"
                     });
                     log.appDebug({ headers, body })
+                    log.appInfo(body)
+                    return body
+                } catch (error) {
+                    log.appError(error);
+                    throw error
+                }
+            },
+
+            delete: async function (host, entity, data, cert = null) {
+                const url = `https://${host}/${_urlParam1}/v1/${entity}/${data}`;
+                log.appDebug(">> delete >> url: %s", url);
+
+                try {
+                    const { headers, body } = await got.delete(url, {
+                        https: yargsModule.httpModule.httpsConfig,
+                        http2: true,
+                        responseType: "json"
+                    });
+                    log.appDebug({ headers, body })
                     log.appInfo({ body })
                     return body
                 } catch (error) {
@@ -115,6 +134,27 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
 
                 try {
                     const { headers, body } = await got.put(url, {
+                        https: yargsModule.httpModule.httpsConfig,
+                        http2: true,
+                        json: typeof (data) == 'string' ? JSON.parse(data) : data,
+                        responseType: "json",
+                    });
+
+                    log.appDebug({ headers, body })
+                    log.appInfo({ body })
+                    return body
+                } catch (error) {
+                    log.appError(error);
+                    throw error
+                }
+            },
+
+            post: async function (host, entity, data, cert = null) {
+                const url = `https://${host}/${_urlParam1}/v1/${entity}`;
+                log.appDebug(">> post >> url: %s >> data: %o", url, data);
+
+                try {
+                    const { headers, body } = await got.post(url, {
                         https: yargsModule.httpModule.httpsConfig,
                         http2: true,
                         json: typeof (data) == 'string' ? JSON.parse(data) : data,
@@ -153,10 +193,22 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
         argumentHandle: function (y) {
             let options = { ...yargsModule.optionsCommon };
             log.appDebug(`Argüman handle: %o`, y.argv);
-            
+
             switch (y.argv._[1]) {
+                case 'nfprofile':
+                case 'general':
+                case 'security':
+                case 'logging':
+                case 'nrf':
+                case 'db':
+                    break;
                 case 'nf-put-log-priority':
                     _urlParam1 = 'log'
+                    break;
+                case 'nsiprofiles':
+                case 'nssrules':
+                case 'configurednssai':
+                    _urlParam1 = 'nssf-configuration'
                     break;
                 default:
                     break;
@@ -167,7 +219,8 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
                     delete options.file;
                     delete options.data;
                     break;
-                case "set":
+                case "post":
+                case "put":
                 case "modify":
                     options.data.demandOption = !!!y.argv.f
                     break;
@@ -175,7 +228,7 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
                     options.data.demandOption = !!!y.argv.f
                     break;
                 default:
-                    console.error("Bu komutu bilemedim :( ");
+                    console.error("Bu argümanı bilemedim :( ");
                     break;
             }
 
@@ -207,19 +260,30 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
         commandHandle: async function (argv) {
             let result = null
             let data = null
+            log.appDebug(`>>> commandHandle > argv: %o`, argv);
 
             switch (argv._[0]) {
                 case "get":
                     result = await yargsModule.httpModule.get(argv.dest, argv.entity, argv.cert);
                     break;
-                case "set":
+                // case "set":
+                //     data = argv.data ? argv.data : await yargsModule.readData(argv)
+                //     result = await yargsModule.httpModule.put(argv.dest, argv.entity, data, argv.cert);
+                //     log.appDebug(`>>> set: result: %o : argv: %o`, result, argv);
+                //     break;
+                case "put":
+                case "post":
                     data = argv.data ? argv.data : await yargsModule.readData(argv)
-                    result = await yargsModule.httpModule.put(argv.dest, argv.entity, data, argv.cert);
-                    log.appDebug(`>>> set: result: %o : argv: %o`, result, argv);
+                    log.appDebug(`>>> put > result: %o > argv: %o`, result, argv);
+                    result = await yargsModule.httpModule[argv._[0]](argv.dest, argv.entity, data, argv.cert);
                     break;
                 case "modify":
                     data = argv.data ? argv.data : await yargsModule.readData(argv)
                     result = await yargsModule.httpModule.patch(argv.dest, argv.entity, data, argv.cert);
+                    break;
+                case "delete":
+                    data = argv.data
+                    result = await yargsModule.httpModule.delete(argv.dest, argv.entity, data, argv.cert);
                     break;
                 default:
                     log.appError("Bu komutu bilemedim :( ");
@@ -227,7 +291,7 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
             }
 
             if (!argv.quite) {
-                console.log(result)
+                // console.log(result)
             }
 
             if (!!argv.out) {
@@ -236,8 +300,6 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
         },
         readData: function (argv, cb) {
             return new Promise((res, rej) => {
-
-                const log = log.appDebug('yargsModule:readData:d')
                 log.appDebug("%O", argv)
                 if (argv.file) {
                     let file = argv.file
@@ -299,8 +361,9 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
             .demandCommand(2, 2, 'Devam edebilmek için en az 2 komut yazmalısınız!')
             .check(argv => {
 
-                if (argv.data) {
+                if (argv.data && argv._[0] != "delete") {
                     try {
+
                         JSON.parse(argv.data)
                     } catch (err) {
                         return `"${argv.data}" Veri JSON'a dönüştürülebilmelidir!`
