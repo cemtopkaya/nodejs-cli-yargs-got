@@ -2,80 +2,9 @@ const got = require("got");
 const yargs = require("yargs");
 const fs = require('fs');
 
-const DEBUG_LABEL = {
-    APP_TRACE: 'app:trace', // 10
-    APP_DEBUG: 'app:debug', // 20
-    APP_INFO: 'app:info',  // 30
-    APP_WARN: 'app:warn', // 40
-    APP_ERROR: 'app:error', // 50
-    APP_FATAL: 'app:fatal', // 50
-}
-let pinoDebugOptions = {
-    auto: true, // default
-    map: {
-        [DEBUG_LABEL.APP_TRACE]: 'trace' // 10
-        , [DEBUG_LABEL.APP_DEBUG]: 'debug' // 20
-        , [DEBUG_LABEL.APP_INFO]: 'info'   // 30
-        , [DEBUG_LABEL.APP_WARN]: 'warn'   // 40
-        , [DEBUG_LABEL.APP_ERROR]: 'error' // 50
-        , [DEBUG_LABEL.APP_FATAL]: 'error' // 50
-        , '*': 'trace'
-    }
-}
-let debug
-    , appInfo
-    , appTrace
-    , appDebug
-    , appWarn
-    , appError
-// ,appFatal
-
-var argv = require('minimist')(process.argv.slice(2));
-// console.log('>>> argv: ', argv)
-process.env.LOG_LEVEL = argv.q ? 'nolog' : (argv.loglevel || 'info')
-// process.env.DEBUG = process.env.DEBUG || '*'
-// process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
-process.env["NODE_NO_WARNINGS"] = "1";
-// console.log('>>> process.env: ',process.env)
-
-function getPinoDebugOptions(_logLevel = process.env.LOG_LEVEL) {
-    var clonePinoDebugOptions = { ...pinoDebugOptions }
-    if (process.env.LOG_LEVEL == 'nolog') {
-        clonePinoDebugOptions.map = {}
-    } else {
-        for (var key in clonePinoDebugOptions.map) {
-            const isVerboseLabel = key.indexOf(_logLevel) > -1
-            if (!isVerboseLabel) {
-                delete clonePinoDebugOptions.map[key]
-            }
-        }
-        // console.log(">>>> clonePinoDebugOptions.map: ", clonePinoDebugOptions.map)
-    }
-
-    return clonePinoDebugOptions
-}
-
-function setLogger(_loglevel = process.env.LOG_LEVEL) {
-    const pino = require('pino')({
-        prettyPrint: true
-        // , level: process.env.LOG_LEVEL || 'info'
-    });
-
-    const pinoDebug = require('pino-debug')
-    let filteredPinoDebugOptions = getPinoDebugOptions(_loglevel)
-    // console.log(">>> filteredPinoDebugOptions: ", filteredPinoDebugOptions);
-    pinoDebug(pino, filteredPinoDebugOptions)
-    const debug = require('debug');
-
-    appInfo = debug(DEBUG_LABEL.APP_INFO)
-    appTrace = debug(DEBUG_LABEL.APP_TRACE)
-    // appTrace = debug(DEBUG_LABEL.APP_TRACE)
-    appDebug = debug(DEBUG_LABEL.APP_DEBUG)
-    appWarn = debug(DEBUG_LABEL.APP_WARN)
-    appError = debug(DEBUG_LABEL.APP_ERROR)
-}
-
 exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
+
+    var { log } = require('./constants').consts
 
     const yargsModule = {
         optionsCommon: {
@@ -163,7 +92,7 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
             },
             get: async function (host, entity, cert = null) {
                 const url = `https://${host}/${_urlParam1}/v1/${entity}`;
-                appTrace(">> get >> url: %s", url);
+                log.appDebug(">> get >> url: %s", url);
 
                 try {
                     const { headers, body } = await got(url, {
@@ -171,18 +100,18 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
                         http2: true,
                         responseType: "json"
                     });
-                    appTrace({ headers, body })
-                    appInfo({ body })
+                    log.appDebug({ headers, body })
+                    log.appInfo({ body })
                     return body
                 } catch (error) {
-                    appError(error);
+                    log.appError(error);
                     throw error
                 }
             },
 
             put: async function (host, entity, data, cert = null) {
                 const url = `https://${host}/${_urlParam1}/v1/${entity}`;
-                appTrace(">> put >> url: %s >> data: %o", url, data);
+                log.appDebug(">> put >> url: %s >> data: %o", url, data);
 
                 try {
                     const { headers, body } = await got.put(url, {
@@ -192,18 +121,18 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
                         responseType: "json",
                     });
 
-                    appTrace({ headers, body })
-                    appInfo({ body })
+                    log.appDebug({ headers, body })
+                    log.appInfo({ body })
                     return body
                 } catch (error) {
-                    appError(error);
+                    log.appError(error);
                     throw error
                 }
             },
 
             patch: async function (host, entity, data, cert = null) {
                 const url = `https://${host}/${_urlParam1}/v1/${entity}`;
-                appTrace(">> patch >> url: %s >> data: %o", url, data);
+                log.appDebug(">> patch >> url: %s >> data: %o", url, data);
 
                 try {
                     const { headers, body } = await got.patch(url, {
@@ -212,17 +141,27 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
                         json: typeof (data) == 'string' ? JSON.parse(data) : data,
                         responseType: "json",
                     });
-                    appTrace({ headers, body })
-                    appInfo({ body })
+                    log.appDebug({ headers, body })
+                    log.appInfo({ body })
                     return body
                 } catch (error) {
-                    appError(error);
+                    log.appError(error);
                     throw error
                 }
             },
         },
         argumentHandle: function (y) {
             let options = { ...yargsModule.optionsCommon };
+            log.appDebug(`Argüman handle: %o`, y.argv);
+            
+            switch (y.argv._[1]) {
+                case 'nf-put-log-priority':
+                    _urlParam1 = 'log'
+                    break;
+                default:
+                    break;
+            }
+
             switch (y.argv._[0]) {
                 case "get":
                     delete options.file;
@@ -240,27 +179,29 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
                     break;
             }
 
-            appTrace(`${y.argv._[0]}: options: %o : argv: %o`, options, y.argv);
+            log.appDebug(`${y.argv._[0]}: options: %o : argv: %o`, options, y.argv);
 
-            if (Object.keys(_paths).filter(key => _paths[key].indexOf(y.argv._[0]) > -1).length == 0) {
-                appError("Uygun bir uç noktya yok!")
-                return false
+            let firstCommand = y.argv._[0]
+            switch (y.argv._[0]) {
+                case 'modify':
+                    firstCommand = 'patch'
+                    break
+                case 'set':
+                    firstCommand = 'put'
+                    break
             }
 
-            // yargsModule.httpModule.httpsConfig = {
-            //     certificate: fs.readFileSync(y.argv.cert)
-            //     // certificate: fs.readFileSync('./certificates/client1-crt.pem')
-            //     // , certificateAuthority: fs.readFileSync('./certificates/ca-crt.pem')
-            //     , key: fs.readFileSync(y.argv.key)
-            //     // passphrase: 'passphrase',
-            //     , rejectUnauthorized: false // only for local dev. would be true in prod
-            // }
+            if (Object.keys(_paths).filter(key => _paths[key].indexOf(firstCommand) > -1).length == 0) {
+                log.appDebug("Uygun bir uç noktya yok!")
+                log.appError("Uygun bir uç noktya yok!")
+                return false
+            }
 
             return y.positional("entity", {
                 describe: "Varlık adı",
                 // demandOption: true,
                 type: "string",
-                choices: Object.keys(_paths).filter(key => _paths[key].indexOf(y.argv._[0]) > -1),
+                choices: Object.keys(_paths).filter(key => _paths[key].indexOf(firstCommand) > -1),
             }).options(options);
         },
         commandHandle: async function (argv) {
@@ -274,14 +215,14 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
                 case "set":
                     data = argv.data ? argv.data : await yargsModule.readData(argv)
                     result = await yargsModule.httpModule.put(argv.dest, argv.entity, data, argv.cert);
-                    appTrace(`>>> set: result: %o : argv: %o`, result, argv);
+                    log.appDebug(`>>> set: result: %o : argv: %o`, result, argv);
                     break;
                 case "modify":
                     data = argv.data ? argv.data : await yargsModule.readData(argv)
                     result = await yargsModule.httpModule.patch(argv.dest, argv.entity, data, argv.cert);
                     break;
                 default:
-                    appError("Bu komutu bilemedim :( ");
+                    log.appError("Bu komutu bilemedim :( ");
                     break;
             }
 
@@ -296,15 +237,15 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
         readData: function (argv, cb) {
             return new Promise((res, rej) => {
 
-                const log = appDebug('yargsModule:readData:d')
-                appTrace("%O", argv)
+                const log = log.appDebug('yargsModule:readData:d')
+                log.appDebug("%O", argv)
                 if (argv.file) {
                     let file = argv.file
 
                     const parseData = str => {
-                        appTrace('str: %s', str);
-                        appTrace('0 argv: %o', argv);
-                        appTrace('1 argv.data: %o', argv.data);
+                        log.appDebug('str: %s', str);
+                        log.appDebug('0 argv: %o', argv);
+                        log.appDebug('1 argv.data: %o', argv.data);
                         try {
                             data = JSON.parse(str + '')
                             res(data)
@@ -315,10 +256,10 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
                     }
 
                     if (file === '-') {
-                        appTrace('from stdin.pipe');
+                        log.appDebug('from stdin.pipe');
                         process.stdin.pipe(require('mississippi').concat(parseData));
                     } else {
-                        appTrace("from file: %s", file)
+                        log.appDebug("from file: %s", file)
                         try {
                             parseData(fs.readFileSync(file).toString())
                         } catch (err) {
@@ -351,7 +292,7 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
             )
         });
 
-        let { argv } = yargs
+        yargs
             //   .example(`$0 ${mainCommand} <entity> --dest localhost:8009 --cert ./localhost.crt ${mainCommand == "get" ? "--file ./data_put" : ""}`, `${commandDescs[mainCommand].desc}`)
             //   .example(`$0 ${mainCommand} <entity> -t localhost:8009 -c ./localhost.crt -f ./data_put`, `${commandDescs[mainCommand].desc}`)
             //   .example(`cat ./data_put | $0 ${mainCommand} <entity> -t localhost:8009 -c ./localhost.crt -f -`, `${commandDescs[mainCommand].desc}`)
@@ -367,10 +308,10 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
                 }
 
                 if (argv.file && argv.file != '-') {
-                    if (fs.existsSync(argv.file) == false)
+                    if (fs.existsSync(argv.file) == false) {
                         return `"${argv.file}" Dosyası sistemde bulunamadı!`
+                    }
                 }
-
 
                 if (argv.cert) {
                     // if (fs.existsSync(argv.cert) == false)
@@ -379,11 +320,12 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
 
                 return true
             })
+            .argv
 
     }
 
     function init() {
-        setLogger()
+        require('./constants').consts.setLogger()
         initYargs()
     }
     init()

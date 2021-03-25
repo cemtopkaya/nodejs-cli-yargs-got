@@ -8,12 +8,11 @@
 let paths = {
     "nfprofile": ['get', 'put', 'patch'],
     "general": ['get', 'put', 'patch'],
-    "additional-services": ['get', 'put', 'patch'],
-    "healthcheck": ['get', 'put', 'patch'],
     "security": ['get', 'put', 'patch'],
     "logging": ['get', 'put', 'patch'],
     "nrf": ['get', 'put', 'patch'],
     "db": ['get', 'put', 'patch'],
+    "nf-put-log-priority": ['put'],
     "additional-services": ['get', 'put', 'patch'],
     "service-settings": ['get', 'put', 'patch']
 }
