@@ -1,200 +1,31 @@
-const got = require("got");
 const yargs = require("yargs");
 const fs = require('fs');
 
-exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
+exports.cli = function cli(_scriptName, _urlParam1, _paths, _mainCommands) {
 
-    var { log } = require('./constants').consts
+    var { log, yargsOptions } = require('./constants').consts
+    var { patch, get, post, put, Delete } = require('./httpGot')(log)
 
     const yargsModule = {
-        optionsCommon: {
-            dest: {
-                alias: "d",
-                demandOption: true,
-                // default: "localhost:8009",
-                describe: "hedef sunucu adresi",
-                type: "string",
-                nargs: 1,
-            },
-            cacert: {
-                alias: "ca",
-                demandOption: false,
-                default: "./localhost.crt",
-                describe: "Sunucunun otorite sertifikası",
-                type: "string",
-                nargs: 1,
-            },
-            cert: {
-                demandOption: false,
-                default: './certificates/client-crt.pem',
-                describe: "İstemcinin kendini tanıttığı açık anahtar",
-                type: "string",
-                nargs: 1,
-            },
-            key: {
-                demandOption: false,
-                default: './certificates/client-key.pem',
-                describe: "İstemcinin kendini tanıttığı gizli anahtar",
-                type: "string",
-                nargs: 1,
-            },
-            pfx: {
-                demandOption: false,
-                default: './certificates/client.pfx',
-                describe: "İstemcinin kendini tanıttığı PKCS formatında sertifika",
-                type: "string",
-                nargs: 1,
-            },
-            data: {
-                alias: "dt",
-                demandOption: true,
-                describe: "Eklenecek/Güncellenecek/Silinecek veri",
-                // type: "string",
-                string: true, //always parse the address argument as a string
-                nargs: 1,
-            },
-            file: {
-                alias: 'f',
-                demandOption: false,
-                type: "string",
-                desc: "Veriyi dosyadan girmek için dosya yolu, stdIn ile girmek için - kullanın",
-                nargs: 1,
-            },
-            out: {
-                alias: 'o',
-                demandOption: false,
-                type: "string",
-                desc: "Sonucu dosyaya yazdırmamak için dosya yolu atanmalı",
-                nargs: 1,
-            },
-            quite: {
-                alias: 'q',
-                demandOption: true,
-                default: false,
-                type: "boolean",
-                desc: "Sonucu ekrana yazdırmamak için parametre olarak değer atamadan kullanılmalı"
-            }
-        },
         commonOptionsIncommand: () => {
-            return Object.keys(yargsModule.optionsCommon)
+            return Object.keys(yargsOptions)
                 .map((c) => "[" + c + "]")
                 .join(" ")
         },
         httpModule: {
-            httpsConfig: {
-                certificate: yargs.argv.cert ? fs.readFileSync(yargs.argv.cert) : ''
-                // certificate: fs.readFileSync('./certificates/client1-crt.pem')
-                , certificateAuthority: yargs.argv.cacert ? fs.readFileSync(yargs.argv.cacert) : ''
-                , key: yargs.argv.key ? fs.readFileSync(yargs.argv.key) : ''
-                , pfx: yargs.argv.pfx ? fs.readFileSync(yargs.argv.pfx) : ''
-                // passphrase: 'passphrase',
-                , rejectUnauthorized: false // only for local dev. would be true in prod
-            },
-            get: async function (host, entity, cert = null) {
-                const url = `https://${host}/${_urlParam1}/v1/${entity}`;
-                log.appDebug(">> get >> url: %s", url);
-
-                try {
-                    const { headers, body } = await got(url, {
-                        https: yargsModule.httpModule.httpsConfig,
-                        http2: true,
-                        responseType: "json"
-                    });
-                    log.appDebug({ headers, body })
-                    log.appInfo(body)
-                    return body
-                } catch (error) {
-                    log.appError(error);
-                    throw error
-                }
-            },
-
-            delete: async function (host, entity, data, cert = null) {
-                const url = `https://${host}/${_urlParam1}/v1/${entity}/${data}`;
-                log.appDebug(">> delete >> url: %s", url);
-
-                try {
-                    const { headers, body } = await got.delete(url, {
-                        https: yargsModule.httpModule.httpsConfig,
-                        http2: true,
-                        responseType: "json"
-                    });
-                    log.appDebug({ headers, body })
-                    log.appInfo({ body })
-                    return body
-                } catch (error) {
-                    log.appError(error);
-                    throw error
-                }
-            },
-
-            put: async function (host, entity, data, cert = null) {
-                const url = `https://${host}/${_urlParam1}/v1/${entity}`;
-                log.appDebug(">> put >> url: %s >> data: %o", url, data);
-
-                try {
-                    const { headers, body } = await got.put(url, {
-                        https: yargsModule.httpModule.httpsConfig,
-                        http2: true,
-                        json: typeof (data) == 'string' ? JSON.parse(data) : data,
-                        responseType: "json",
-                    });
-
-                    log.appDebug({ headers, body })
-                    log.appInfo({ body })
-                    return body
-                } catch (error) {
-                    log.appError(error);
-                    throw error
-                }
-            },
-
-            post: async function (host, entity, data, cert = null) {
-                const url = `https://${host}/${_urlParam1}/v1/${entity}`;
-                log.appDebug(">> post >> url: %s >> data: %o", url, data);
-
-                try {
-                    const { headers, body } = await got.post(url, {
-                        https: yargsModule.httpModule.httpsConfig,
-                        http2: true,
-                        json: typeof (data) == 'string' ? JSON.parse(data) : data,
-                        responseType: "json",
-                    });
-
-                    log.appDebug({ headers, body })
-                    log.appInfo({ body })
-                    return body
-                } catch (error) {
-                    log.appError(error);
-                    throw error
-                }
-            },
-
-            patch: async function (host, entity, data, cert = null) {
-                const url = `https://${host}/${_urlParam1}/v1/${entity}`;
-                log.appDebug(">> patch >> url: %s >> data: %o", url, data);
-
-                try {
-                    const { headers, body } = await got.patch(url, {
-                        https: yargsModule.httpModule.httpsConfig,
-                        http2: true,
-                        json: typeof (data) == 'string' ? JSON.parse(data) : data,
-                        responseType: "json",
-                    });
-                    log.appDebug({ headers, body })
-                    log.appInfo({ body })
-                    return body
-                } catch (error) {
-                    log.appError(error);
-                    throw error
-                }
-            },
+            get: get
+            , delete: Delete
+            , put: put
+            , post: post
+            , patch: patch
         },
         argumentHandle: function (y) {
-            let options = { ...yargsModule.optionsCommon };
+            let options = { ...yargsOptions };
             log.appDebug(`Argüman handle: %o`, y.argv);
+            let mainCommand = y.argv._[0],
+                entity = y.argv._[1]
 
-            switch (y.argv._[1]) {
+            switch (entity) {
                 case 'nfprofile':
                 case 'general':
                 case 'security':
@@ -214,10 +45,12 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
                     break;
             }
 
-            switch (y.argv._[0]) {
+            switch (mainCommand) {
                 case "get":
                     delete options.file;
                     delete options.data;
+                    break;
+                case "set":
                     break;
                 case "post":
                 case "put":
@@ -232,58 +65,97 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
                     break;
             }
 
-            log.appDebug(`${y.argv._[0]}: options: %o : argv: %o`, options, y.argv);
+            log.appDebug(`${mainCommand}: options: %o : argv: %o`, options, y.argv);
 
-            let firstCommand = y.argv._[0]
-            switch (y.argv._[0]) {
-                case 'modify':
-                    firstCommand = 'patch'
-                    break
-                case 'set':
-                    firstCommand = 'put'
-                    break
+
+            const containsMainCommand = (_entity) => {
+                // "nfprofile": ['get', 'set', 'put', 'patch']
+                // set içeriyporsa put, post içeriyorsa TRUE döner
+                return yargMainCommands.some(cmd => {
+                    console.log(">>>> _paths: %o, [_entity]: %o ", _paths, _entity)
+                    _paths[_entity].indexOf(cmd) > -1
+                })
             }
-
-            if (Object.keys(_paths).filter(key => _paths[key].indexOf(firstCommand) > -1).length == 0) {
-                log.appDebug("Uygun bir uç noktya yok!")
-                log.appError("Uygun bir uç noktya yok!")
-                return false
+            const getCommandEntities = (_cmd) => {
+                var entityNames = Object.keys(_paths)
+                var r = entityNames.filter(entity => {
+                    var entityCommands = _paths[entity]
+                    var containsCommand = entityCommands.some(cmd => cmd == _cmd)
+                    log.appDebug(">>>> prop: ", entity, _paths[entity], " > containsCommand: ", containsCommand);
+                    return containsCommand
+                })
+                log.appDebug("getCommandEntities > entityNames: %o > _cmd: %o > result: %o", entityNames, _cmd, r);
+                return r
             }
 
             return y.positional("entity", {
                 describe: "Varlık adı",
-                // demandOption: true,
+                demandOption: true,
                 type: "string",
-                choices: Object.keys(_paths).filter(key => _paths[key].indexOf(firstCommand) > -1),
+                choices: getCommandEntities(mainCommand)
             }).options(options);
+
+
         },
         commandHandle: async function (argv) {
             let result = null
             let data = null
-            log.appDebug(`>>> commandHandle > argv: %o`, argv);
+            let cert = {
+                cert: argv.cert
+                , key: argv.key
+                , cacert: argv.cacert
+                , pfx: argv.pfx
+                , passphrase: argv.passphrase
+                , rejectUnauthorized: argv.rejectUnauthorized
+            }
+            let mainCommand = argv._[0]
+            let entity = argv.entity
 
-            switch (argv._[0]) {
+            log.appDebug(`>>> commandHandle > mainCommand: %o > argv: %o`, mainCommand, argv);
+            switch (mainCommand) {
                 case "get":
-                    result = await yargsModule.httpModule.get(argv.dest, argv.entity, argv.cert);
+                    result = await yargsModule.httpModule.get(argv.dest, _urlParam1, argv.entity, cert);
                     break;
                 // case "set":
                 //     data = argv.data ? argv.data : await yargsModule.readData(argv)
                 //     result = await yargsModule.httpModule.put(argv.dest, argv.entity, data, argv.cert);
                 //     log.appDebug(`>>> set: result: %o : argv: %o`, result, argv);
                 //     break;
-                case "put":
-                case "post":
+                case "set":
                     data = argv.data ? argv.data : await yargsModule.readData(argv)
-                    log.appDebug(`>>> put > result: %o > argv: %o`, result, argv);
-                    result = await yargsModule.httpModule[argv._[0]](argv.dest, argv.entity, data, argv.cert);
+                    log.appDebug(`>>> set > entity: %o > _paths: %o`, entity, _paths);
+                    if (_paths[entity].indexOf('post') > -1) {
+                        log.appDebug(`>>> post > entity: %o > argv: %o`, entity, argv);
+                        result = await yargsModule.httpModule.post(argv.dest, _urlParam1, argv.entity, data, argv.cert);
+                    }
+                    else if (_paths[entity].indexOf('put') > -1) {
+                        log.appDebug(`>>> put > entity: %o > argv: %o`, entity, argv);
+                        result = await yargsModule.httpModule.put(argv.dest, _urlParam1, argv.entity, data, argv.cert);
+                    }
+                    else {
+                        const msg = `${entity} Adlı varlık elemanı için veri girmeye uygun metot yok!`
+                        log.appError(msg)
+                        throw new Error(msg)
+                    }
                     break;
                 case "modify":
+                    const isPatchArray = (_data) => {
+                        log.appDebug("commandHandle >> isPatchArray >> _data: %o", _data)
+                        const dataClone = typeof (_data) == 'string' ? JSON.parse(_data) : _data
+                        log.appDebug("commandHandle >> isPatchArray >> dataClone: %o", dataClone)
+                        return Array.isArray(dataClone)
+                            && dataClone.some(item => item.hasOwnProperty('op'))
+                            && dataClone.some(item => item.hasOwnProperty('path'))
+                            && dataClone.some(item => item.hasOwnProperty('value'))
+                    }
                     data = argv.data ? argv.data : await yargsModule.readData(argv)
-                    result = await yargsModule.httpModule.patch(argv.dest, argv.entity, data, argv.cert);
+                    const httpMethodNameForUpdate = isPatchArray(data) ? 'patch' : 'put'
+
+                    result = await yargsModule.httpModule[httpMethodNameForUpdate](argv.dest, _urlParam1, argv.entity, data, argv.cert);
                     break;
                 case "delete":
                     data = argv.data
-                    result = await yargsModule.httpModule.delete(argv.dest, argv.entity, data, argv.cert);
+                    result = await yargsModule.httpModule.delete(argv.dest, _urlParam1, argv.entity, data, argv.cert);
                     break;
                 default:
                     log.appError("Bu komutu bilemedim :( ");
@@ -291,7 +163,7 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
             }
 
             if (!argv.quite) {
-                // console.log(result)
+                console.log(result)
             }
 
             if (!!argv.out) {
@@ -310,11 +182,15 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
                         log.appDebug('1 argv.data: %o', argv.data);
                         try {
                             data = JSON.parse(str + '')
-                            res(data)
+                            return res(data)
                         } catch (error) {
                             rej(error)
                             throw error
                         }
+                    }
+
+                    if (argv.data) {
+                        return parseData(argv.data)
                     }
 
                     if (file === '-') {
@@ -329,7 +205,6 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
                         }
                     }
                 }
-
             })
         }
     }
@@ -341,14 +216,15 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
             .option('loglevel', {
                 alias: 'l',
                 choices: ['trace', 'debug', 'info', 'warn', 'error', 'fatal'],
-                default: 'info'
+                default: 'info',
+                type: 'string'
             })
 
-        Object.keys(_commands).forEach((mainCommand) => {
+        Object.keys(_mainCommands).forEach((mainCommand) => {
             yargs.command(
                 // `${mainCommand} <entity> ${yargsModule.commonOptionsIncommand()}`,
                 `${mainCommand} <entity> [options]`,
-                `${_commands[mainCommand].desc}`,
+                `${_mainCommands[mainCommand].desc}`,
                 yargsModule.argumentHandle,
                 yargsModule.commandHandle
             )
@@ -360,10 +236,28 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
             //   .example(`cat ./data_put | $0 ${mainCommand} <entity> -t localhost:8009 -c ./localhost.crt -f -`, `${commandDescs[mainCommand].desc}`)
             .demandCommand(2, 2, 'Devam edebilmek için en az 2 komut yazmalısınız!')
             .check(argv => {
+                const mainCommand = argv._[0]
+                // const entity = argv._[1]
+                log.appDebug("yargs check > argv: %o", argv)
 
-                if (argv.data && argv._[0] != "delete") {
+                switch (mainCommand) {
+                    case 'set':
+                    case 'modify':
+                    case 'delete':
+                        log.appDebug("set,modify,delete komutları veri gelmezse çalıştırılmaz kontrolü yapılacak...")
+                        let fileOrDataExist = (!!argv.data || !!argv.dt || !!argv.file || !!argv.f)
+                        log.appDebug("> !!argv.data: %o > !!argv.data: %o >!!argv.file: %o > || !!argv.f: %o", !!argv.data, !!argv.data, !!argv.file, !!argv.f)
+                        log.appDebug("(!!argv.data || !!argv.dt || !!argv.file || !!argv.f) %s", fileOrDataExist)
+                        if (fileOrDataExist == false) {
+                            throw new Error('Eklemek istenilen veri file veya data argümanlarıyla sağlanmalıdır!')
+                        }
+                        break;
+                    default:
+                        break
+                }
+
+                if (argv.data && mainCommand != "delete") {
                     try {
-
                         JSON.parse(argv.data)
                     } catch (err) {
                         return `"${argv.data}" Veri JSON'a dönüştürülebilmelidir!`
@@ -377,14 +271,17 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _commands) {
                 }
 
                 if (argv.cert) {
+                    //  TODO: sertifika dosyaları (key, cert, cacert) mvcut mu?
                     // if (fs.existsSync(argv.cert) == false)
                     //     return `"${argv.cert}" Sertifika dosyası sistemde bulunamadı!`
                 }
 
+                process.env.PRETTY_PRINT = (argv.p || !!argv.printPretty)
+                console.log(typeof(argv.p)+"   <<<<<>>>>>>>>>> process.env.PRETTY_PRINT: ", process.env.PRETTY_PRINT);
+
                 return true
             })
             .argv
-
     }
 
     function init() {

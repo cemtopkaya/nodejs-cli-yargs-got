@@ -1,0 +1,16 @@
+[
+    {
+        "name": "cem",
+        "nrfAccessTokenUri": "token_uri",
+        "nrfId": "123",
+        "nrfNfMgtUri": "123",
+        "nsiId": "123",
+        "targetAmfSets": [
+            {
+                "regionId": "12",
+                "setFqdn": "",
+                "setId": "12"
+            }
+        ]
+    }
+]

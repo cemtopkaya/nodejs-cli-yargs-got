@@ -1,0 +1,6 @@
+{
+    "Directory": "/var/log/cinar/nssf/",
+    "DisplayLog": true,
+    "FileName": "NSSF1",
+    "LogLevel": "DEBUG"
+}
