@@ -11,7 +11,7 @@ let pinoDebugOptions = {
     auto: true, // default
     map: {
         [DEBUG_LABEL.APP_TRACE]: 'trace' // 10
-        , [DEBUG_LABEL.APP_DEBUG]: 'debug' // 20
+        , [DEBUG_LABEL.APP_DEBUG]: 'info' // 20
         , [DEBUG_LABEL.APP_INFO]: 'info'   // 30
         , [DEBUG_LABEL.APP_WARN]: 'warn'   // 40
         , [DEBUG_LABEL.APP_ERROR]: 'error' // 50
@@ -19,7 +19,7 @@ let pinoDebugOptions = {
     }
 }
 const log = {
-     appInfo: null
+    appInfo: null
     , appTrace: null
     , appDebug: null
     , appWarn: null
@@ -28,11 +28,10 @@ const log = {
 // ,appFatal
 
 var argv = require('minimist')(process.argv.slice(2));
-// console.log('>>> argv: ', argv)
 process.env.LOG_LEVEL = argv.q ? 'nolog' : (argv.loglevel || 'info')
 // process.env.DEBUG = process.env.DEBUG || '*'
 // process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
-process.env["NODE_NO_WARNINGS"] = "1";
+// process.env["NODE_NO_WARNINGS"] = "1";
 // console.log('>>> process.env: ',process.env)
 
 
@@ -53,20 +52,21 @@ function getPinoDebugOptions(_logLevel = process.env.LOG_LEVEL) {
 }
 
 function setLogger(_loglevel = process.env.LOG_LEVEL) {
-    const pino = require('pino')({
-        // prettyPrint: true
-        prettyPrint: {
-            colorize: require('chalk').supportsColor,
-            singleLine: true,
-            // levelFirst: true, // INFO [2021-03-25 09:25:13.481] (7363 on CEM-TOPKAYA-PC): {"body":{"LogLevel":"INFO"},"ns":"app:info"}
-            // levelFirst: false, // INFO [2021-03-25 09:25:13.481] (7363 on CEM-TOPKAYA-PC): {"body":{"LogLevel":"INFO"},"ns":"app:info"}
-            levelFirst: true,
-            translateTime: 'yyyy-mm-dd HH:MM:ss.l'
-        },
-        // prettifier: require('pino-pretty')
-        // prettifier: require('pino-inspector')
-        // , level: process.env.LOG_LEVEL || 'info'
-    });
+    let printOpts = {
+        colorize: require('chalk').supportsColor,
+        singleLine: true,
+        // levelFirst: true, // INFO [2021-03-25 09:25:13.481] (7363 on CEM-TOPKAYA-PC): {"body":{"LogLevel":"INFO"},"ns":"app:info"}
+        // levelFirst: false, // INFO [2021-03-25 09:25:13.481] (7363 on CEM-TOPKAYA-PC): {"body":{"LogLevel":"INFO"},"ns":"app:info"}
+        levelFirst: true,
+        translateTime: 'yyyy-mm-dd HH:MM:ss.l'
+    }
+    let pinoOptions = {}
+
+    const isPrintPretty = (argv.prettyPrint == 'true') || (argv.p == 'true') || (process.env.PRETTY_PRINT == 'true')
+    if (isPrintPretty) {
+        pinoOptions.prettyPrint = printOpts
+    }
+    const pino = require('pino')(pinoOptions);
 
     const pinoDebug = require('pino-debug')
     let filteredPinoDebugOptions = getPinoDebugOptions(_loglevel)
@@ -79,12 +79,126 @@ function setLogger(_loglevel = process.env.LOG_LEVEL) {
     log.appDebug = debug(DEBUG_LABEL.APP_DEBUG)
     log.appWarn = debug(DEBUG_LABEL.APP_WARN)
     log.appError = debug(DEBUG_LABEL.APP_ERROR)
-    console.log('>>> process.env.DEBUG: ' + process.env.DEBUG)
+    log.appDebug('constants > process.env.DEBUG: ' + process.env.DEBUG)
+}
+
+const yargsOptions = {
+    dest: {
+        alias: "d",
+        demandOption: true,
+        // default: "localhost:8009",
+        describe: "hedef sunucu adresi",
+        type: "string",
+        nargs: 1,
+    },
+    rejectUnauthorized: {
+        alias: 'r',
+        demandOption: true,
+        default: false,
+        type: "boolean",
+        desc: "Sunucu sertifikası geçersiz ise iletişimi kapatır"
+    },
+    cacert: {
+        alias: "ca",
+        demandOption: false,
+        // default: "./localhost.crt",
+        describe: "Sunucu sertifikasının doğrulanması için otorite sertifikası",
+        type: "string",
+        nargs: 1,
+    },
+    cert: {
+        demandOption: false,
+        // default: './certificates/client-crt.pem',
+        describe: "İstemcinin kendini tanıttığı açık anahtar",
+        type: "string",
+        nargs: 1,
+    },
+    key: {
+        demandOption: false,
+        // default: './certificates/client-key.pem',
+        describe: "İstemcinin kendini tanıttığı gizli anahtar",
+        type: "string",
+        nargs: 1,
+    },
+    passphrase: {
+        demandOption: false,
+        // default: './certificates/client-key.pem',
+        describe: "İstemci sertifikasının parolası",
+        type: "string",
+        nargs: 1,
+    },
+    pfx: {
+        demandOption: false,
+        // default: './certificates/client.pfx',
+        describe: "İstemcinin kendini tanıttığı PKCS formatında sertifika",
+        type: "string",
+        nargs: 1,
+    },
+    data: {
+        demandOption: false,
+        describe: "Eklenecek/Güncellenecek/Silinecek veri",
+        type: "string",
+        nargs: 1,
+    },
+    file: {
+        alias: 'f',
+        demandOption: false,
+        type: "string",
+        desc: "Veriyi dosyadan girmek için dosya yolu, stdIn ile girmek için - kullanın",
+        nargs: 1,
+    },
+    out: {
+        alias: 'o',
+        demandOption: false,
+        type: "string",
+        desc: "Sonucu dosyaya yazdırmamak için dosya yolu atanmalı",
+        nargs: 1,
+    },
+    quite: {
+        alias: 'q',
+        demandOption: true,
+        default: false,
+        type: "boolean",
+        desc: "Sonucu ekrana yazdırmamak için parametre olarak değer atamadan kullanılmalı"
+    },
+    prettyPrint: {
+        demandOption: true,
+        default: false,
+        type: "boolean",
+        desc: "Sonucu ekrana formatlı yazdırmak için true değeri atanmalıdır"
+    },
+    loglevel: {
+        alias: 'l',
+        choices: ['trace', 'debug', 'info', 'warn', 'error', 'fatal', 'nolog'],
+        default: 'info',
+        type: 'string'
+    }
+}
+
+const mainCommands = {
+    get: {
+        desc: 'Verileri çekmek için',
+        options: ['dest', 'cert']
+    },
+    set: {
+        desc: 'Değer atamak için',
+        options: ['dest', 'cert', 'file', 'data']
+    },
+    delete: {
+        desc: 'Veri silmek için',
+        options: ['dest', 'cert', 'file', 'data']
+    },
+    modify: {
+        desc: 'Verileri güncellemek için',
+        options: ['dest', 'cert', 'file', 'data']
+    },
 }
 
 exports.consts = {
     DEBUG_LABEL
     , pinoDebugOptions
     , log
+    , yargsOptions
     , setLogger
+    , mainCommands
 }

@@ -9,25 +9,7 @@ let paths = {
     "nf-put-log-priority": ['put'],
 }
 
-const commands = {
-    get: {
-        desc: 'Verileri çekmek için',
-        options: ['dest', 'cert']
-    },
-    set: {
-        desc: 'Değer atamak için',
-        options: ['dest', 'cert', 'file', 'data']
-    },
-    delete: {
-        desc: 'Veri silmek için',
-        options: ['dest', 'cert', 'file', 'data']
-    },
-    modify: {
-        desc: 'Verileri güncellemek için',
-        options: ['dest', 'cert', 'file', 'data']
-    },
-}
 
-
+let mainCommands = {...require('./constants').consts.mainCommands}
 const { cli } = require('./nf-index')
-cli('cnrnef-cli', 'nef-settings', paths, commands)
+cli('cnrnef-cli', 'nef-settings', paths, mainCommands)

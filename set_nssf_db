@@ -1,0 +1,19 @@
+{
+    "ConnectionPoolSize": 4,
+    "ConnectionRetryPeriod": 60000,
+    "ConnectionTimeout": 1000,
+    "DatabaseName": "cinarnssftest",
+    "DatabaseType": "MONGO",
+    "Password": "P5vKG6vE",
+    "Port": 27017,
+    "Server": "10.5.0.2",
+    "Tables": [
+        "cinarnsicollection",
+        "cinarnssrulescollection",
+        "cinarconfigurednssaicollection",
+        "cinaramfavailabilitycollection",
+        "cinarnssfsubscinarcollection",
+        "cem"
+    ],
+    "UserName": "cnrusr"
+}
