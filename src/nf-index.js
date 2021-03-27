@@ -3,7 +3,7 @@ const fs = require('fs');
 
 exports.cli = function cli(_scriptName, _urlParam1, _paths, _mainCommands) {
 
-    var { log, yargsOptions } = require('./constants').consts
+    var { log, yargsOptions, isPatchArray } = require('./constants').consts
     var { patch, get, post, put, Delete } = require('./httpGot')(log)
 
     const yargsModule = {
@@ -110,57 +110,42 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _mainCommands) {
             }
             let mainCommand = argv._[0]
             let entity = argv.entity
+            log.appDebug(`1. commandHandle > mainCommand: %s > argv: %o > cert: %o`, mainCommand, argv, cert);
 
-            log.appDebug(`>>> commandHandle > mainCommand: %o > argv: %o`, mainCommand, argv);
+
+            let httpMethodName = undefined
             switch (mainCommand) {
                 case "get":
-                    result = await yargsModule.httpModule.get(argv.dest, _urlParam1, argv.entity, cert);
-                    break;
-                // case "set":
-                //     data = argv.data ? argv.data : await yargsModule.readData(argv)
-                //     result = await yargsModule.httpModule.put(argv.dest, argv.entity, data, cert);
-                //     log.appDebug(`>>> set: result: %o : argv: %o`, result, argv);
-                //     break;
-                case "set":
-                    data = argv.data ? argv.data : await yargsModule.readData(argv)
-                    log.appDebug(`>>> set > entity: %o > _paths: %o`, entity, _paths);
-                    if (_paths[entity].indexOf('post') > -1) {
-                        log.appDebug(`>>> post > entity: %o > argv: %o`, entity, argv);
-                        result = await yargsModule.httpModule.post(argv.dest, _urlParam1, argv.entity, data, cert);
-                    }
-                    else if (_paths[entity].indexOf('put') > -1) {
-                        log.appDebug(`>>> put > entity: %o > argv: %o`, entity, argv);
-                        result = await yargsModule.httpModule.put(argv.dest, _urlParam1, argv.entity, data, cert);
-                    }
-                    else {
-                        const msg = `${entity} Adlı varlık elemanı için veri girmeye uygun metot yok!`
-                        log.appError(msg)
-                        throw new Error(msg)
-                    }
-                    break;
-                case "modify":
-                    const isPatchArray = (_data) => {
-                        log.appDebug("commandHandle >> isPatchArray >> _data: %o", _data)
-                        const dataClone = typeof (_data) == 'string' ? JSON.parse(_data) : _data
-                        log.appDebug("commandHandle >> isPatchArray >> dataClone: %o", dataClone)
-                        return Array.isArray(dataClone)
-                            && dataClone.some(item => item.hasOwnProperty('op'))
-                            && dataClone.some(item => item.hasOwnProperty('path'))
-                            && dataClone.some(item => item.hasOwnProperty('value'))
-                    }
-                    data = argv.data ? argv.data : await yargsModule.readData(argv)
-                    const httpMethodNameForUpdate = isPatchArray(data) ? 'patch' : 'put'
-
-                    result = await yargsModule.httpModule[httpMethodNameForUpdate](argv.dest, _urlParam1, argv.entity, data, cert);
-                    break;
+                    httpMethodName = 'get'; break;
                 case "delete":
-                    data = argv.data
-                    result = await yargsModule.httpModule.delete(argv.dest, _urlParam1, argv.entity, data, cert);
-                    break;
-                default:
-                    log.appError("Bu komutu bilemedim :( ");
-                    break;
+                    httpMethodName = 'Delete'; break;
+                case 'modify':
+                    httpMethodName = isPatchArray(data) ? 'patch' : 'put'; break;
+                case "set":
+                    /**
+                     * ['post','put']
+                     * Önce post aranır ve eğer varsa 'post' döner
+                     * Sonra put yoksa put aranır varsa 'put' döner
+                     * post ve put bulunamazsa undefined döner
+                     * 
+                     * ['post','put'].find(k=>['get', 'set', 'put', 'post', 'delete'].includes(k)) 
+                     */
+                    httpMethodName = ['post', 'put'].find(q => _paths[entity].includes('post')); break;
             }
+
+            log.appDebug(`2. commandHandle > mainCommand: %s > argv: %o > cert: %o > httpMethodName: %s`, mainCommand, argv, cert, httpMethodName);
+
+            if (httpMethodName == undefined) { // mainCommand == set undefined dönerse burada hata fırlatılacak 
+                throw new Error(`${entity} Adlı varlık elemanı için veri girmeye uygun metot yok!`);
+            }
+
+            log.appDebug(`commandHandle > mainCommand: %s > argv: %o > cert: %o`, mainCommand, argv, cert);
+            
+            if (['set', 'modify'].includes(mainCommand)) {
+                data = argv.data ? argv.data : await yargsModule.readData(argv)
+            }
+            
+            result = await yargsModule.httpModule[httpMethodName](argv.dest, _urlParam1, argv.entity, data, cert);
 
             if (!argv.quite) {
                 console.log(result)
@@ -271,7 +256,7 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _mainCommands) {
                 }
 
                 process.env.PRETTY_PRINT = (argv.p || !!argv.printPretty)
-                
+
                 return true
             })
             .argv

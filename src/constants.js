@@ -194,6 +194,17 @@ const mainCommands = {
     },
 }
 
+
+const isPatchArray = (_data) => {
+    log.appDebug("commandHandle >> isPatchArray >> _data: %o", _data)
+    const dataClone = typeof (_data) == 'string' ? JSON.parse(_data) : _data
+    log.appDebug("commandHandle >> isPatchArray >> dataClone: %o", dataClone)
+    return Array.isArray(dataClone)
+        && dataClone.some(item => item.hasOwnProperty('op'))
+        && dataClone.some(item => item.hasOwnProperty('path'))
+        && dataClone.some(item => item.hasOwnProperty('value'))
+}
+
 exports.consts = {
     DEBUG_LABEL
     , pinoDebugOptions
@@ -201,4 +212,5 @@ exports.consts = {
     , yargsOptions
     , setLogger
     , mainCommands
+    , isPatchArray
 }
