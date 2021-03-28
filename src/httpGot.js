@@ -2,19 +2,47 @@
 const got = require("got");
 const fs = require("fs");
 
+
 module.exports = function (log) {
+
+    const instance = got.extend({
+        hooks: {
+            beforeRequest: [
+                options => {
+                    log.appDebug(">> got options: %o", options)
+                    log.appDebug(">> got options.headers: %o", options.headers)
+                }
+            ],
+            afterResponse: [
+                (response, retryWithMergedOptions) => {
+                    log.appDebug(">> got response: %o", response.headers)
+
+                    // No changes otherwise
+                    return response;
+                }
+            ],
+        }
+    });
 
     const getHttpOptions = function (_cert = null) {
         return {
             https: getCert(_cert),
             http2: true,
-            responseType: "json"
+            responseType: "text"
         }
     }
 
     const getHttpOptionsWithData = function (_data = null, _cert = null) {
         let httpOptions = getHttpOptions(_cert)
-        httpOptions.json = typeof (_data) == 'string' ? JSON.parse(_data) : _data;
+        log.appDebug('>> getHttpOptionsWithData > _data: %o > _cert: %o', _data, _cert)
+        try {
+            var parsedData = typeof (_data) == 'string' ? JSON.parse(_data) : _data
+            log.appDebug("JSON Parse edildi ", parsedData);
+            httpOptions.json = parsedData;
+        } catch (error) {
+            log.appError(">> getHttpOptionsWithData > error: ", error);
+            throw error
+        }
         return httpOptions;
     }
 
@@ -62,7 +90,7 @@ module.exports = function (log) {
             log.appDebug(">> delete >> url: %s", url);
 
             try {
-                const { headers, body } = await got.delete(url, getHttpOptions(_cert));
+                const { headers, body } = await instance.delete(url, getHttpOptions(_cert));
                 log.appDebug({ headers, body })
                 log.appInfo({ body })
                 return body
@@ -74,10 +102,10 @@ module.exports = function (log) {
 
         put: async function (host, nf, entity, _data, _cert = null) {
             const url = `https://${host}/${nf}/v1/${entity}`;
-            log.appDebug(">> put >> url: %s >> _data: %o >>  _cert: %o>>  getCert(_cert): %o", url, _data, _cert, getCert(_cert));
+            log.appDebug(">> put >> url: %s >> _data: %o >>  _cert: %o >>  getCert(_cert): %o", url, _data, _cert, getCert(_cert));
 
             try {
-                const { headers, body } = await got.put(url, getHttpOptionsWithData(_data, _cert));
+                const { headers, body } = await instance.put(url, getHttpOptionsWithData(_data, _cert));
 
                 log.appDebug({ headers, body })
                 log.appInfo({ body })
@@ -93,7 +121,7 @@ module.exports = function (log) {
             log.appDebug(">> post >> url: %s >> _data: %o", url, _data);
 
             try {
-                const { headers, body } = await got.post(url, getHttpOptionsWithData(_data, _cert));
+                const { headers, body } = await instance.post(url, getHttpOptionsWithData(_data, _cert));
 
                 log.appDebug({ headers, body })
                 log.appInfo({ body })
@@ -109,7 +137,7 @@ module.exports = function (log) {
             log.appDebug(">> patch >> url: %s >> _data: %o", url, _data);
 
             try {
-                const { headers, body } = await got.patch(url, getHttpOptionsWithData(_data, _cert));
+                const { headers, body } = await instance.patch(url, getHttpOptionsWithData(_data, _cert));
                 log.appDebug({ headers, body })
                 log.appInfo({ body })
                 return body

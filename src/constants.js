@@ -11,7 +11,7 @@ let pinoDebugOptions = {
     auto: true, // default
     map: {
         [DEBUG_LABEL.APP_TRACE]: 'trace' // 10
-        , [DEBUG_LABEL.APP_DEBUG]: 'info' // 20
+        , [DEBUG_LABEL.APP_DEBUG]: process.env.NODE_ENV == 'dev' ? 'info' : 'debug' // 20
         , [DEBUG_LABEL.APP_INFO]: 'info'   // 30
         , [DEBUG_LABEL.APP_WARN]: 'warn'   // 40
         , [DEBUG_LABEL.APP_ERROR]: 'error' // 50
@@ -25,17 +25,23 @@ const log = {
     , appWarn: null
     , appError: null
 }
-// ,appFatal
 
-var argv = require('minimist')(process.argv.slice(2));
-process.env.LOG_LEVEL = argv.q ? 'nolog' : (argv.loglevel || 'info')
+var argv = require('minimist')(process.argv.slice(2), {
+    string: ['lang', 'loglevel'],
+    boolean: ['prettyPrint', 'quite'],
+    alias: { p: 'prettyPrint', l: 'loglevel', q: 'quite' }
+})
+
+// console.log('>>> argv: ', argv)
+process.env.LOG_LEVEL = !!argv.q ? 'nolog' : (argv.loglevel || argv.l || 'info')
 // process.env.DEBUG = process.env.DEBUG || '*'
 // process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
 // process.env["NODE_NO_WARNINGS"] = "1";
-// console.log('>>> process.env: ',process.env)
+// console.log('>>> process.env.LOG_LEVEL: ', process.env.LOG_LEVEL)
 
 
 function getPinoDebugOptions(_logLevel = process.env.LOG_LEVEL) {
+    console.log('>>> getPinoDebugOptions > _logLevel: ', _logLevel)
     var clonePinoDebugOptions = { ...pinoDebugOptions }
     if (process.env.LOG_LEVEL == 'nolog') {
         clonePinoDebugOptions.map = {}
@@ -62,7 +68,7 @@ function setLogger(_loglevel = process.env.LOG_LEVEL) {
     }
     let pinoOptions = {}
 
-    const isPrintPretty = (argv.prettyPrint == 'true') || (argv.p == 'true') || (process.env.PRETTY_PRINT == 'true')
+    const isPrintPretty = argv.prettyPrint || (process.env.PRETTY_PRINT == 'true')
     if (isPrintPretty) {
         pinoOptions.prettyPrint = printOpts
     }
@@ -70,7 +76,6 @@ function setLogger(_loglevel = process.env.LOG_LEVEL) {
 
     const pinoDebug = require('pino-debug')
     let filteredPinoDebugOptions = getPinoDebugOptions(_loglevel)
-    // console.log(">>> filteredPinoDebugOptions: ", filteredPinoDebugOptions);
     pinoDebug(pino, filteredPinoDebugOptions)
     debug = require('debug');
 
