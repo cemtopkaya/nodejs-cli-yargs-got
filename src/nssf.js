@@ -15,3 +15,9 @@ let paths = {
 let mainCommands = { ...require('./constants').consts.mainCommands }
 const { cli } = require('./nf-index')
 cli('cnrnssf-cli', 'nssf-settings', paths, mainCommands)
+
+module.exports = {
+    paths,
+    mainCommands,
+    cli
+}

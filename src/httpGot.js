@@ -51,6 +51,8 @@ module.exports = function (log) {
                 return body
             } catch (error) {
                 log.appError(error);
+                // process.stderr.write(error)
+                // console.error(">>> got > get > catch > error: ", error);
                 throw error
             }
         },

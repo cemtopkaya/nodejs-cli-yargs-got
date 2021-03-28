@@ -19,4 +19,7 @@ let paths = {
 
 let mainCommands = {...require('./constants').consts.mainCommands}
 const { cli } = require('./nf-index')
+
+console.log("process.argv: ",process.argv)
+
 cli('cnrnrf-cli', 'nrf-settings', paths, mainCommands)

@@ -1,0 +1,22 @@
+const expect = require('chai').expect;
+const cmd = require('./cmd');
+const { EOL } = require('os');
+describe('The pizza CLI', () => {
+  it('should print the correct output', async (done) => {
+    console.log(">>>> test başlıyor: ");
+    const response = await cmd.execute(
+      './src/nrf',
+      ['--loglevel=info', '-r', 'false', '-d','localhost:8103', 'get', 'db']
+    );
+    console.log(">>>> response: ",response);
+    expect(response.trim().split(EOL)).to.have.all.keys(
+      'you ordered a pizza with:',
+      '  - peppers',
+      '  - gouda cheese'
+    );
+    done()
+  });
+});
+
+
+// --loglevel=debug -r false -d="localhost:8103" get db
