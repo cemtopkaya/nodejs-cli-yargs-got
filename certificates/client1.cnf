@@ -12,7 +12,7 @@ ST                     = MA
 L                      = Boston
 O                      = Example Co
 OU                     = techops
-CN                     = 10.10.31.111
+CN                     = localhost
 emailAddress           = certs@example.com
 
 [ req_attributes ]
@@ -24,3 +24,13 @@ authorityInfoAccess = @issuer_info
 [ issuer_info ]
 OCSP;URI.0 = http://ocsp.example.com/
 caIssuers;URI.0 = http://example.com/ca.cert
+
+[ req_ext ]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1   = *.cem.com.tr
+DNS.2   = localhost
+IP.1   = 127.0.0.1
+IP.2   = 10.10.31.111
+

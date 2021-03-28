@@ -22,8 +22,8 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _mainCommands) {
             try {
                 let options = { ...yargsOptions };
                 log.appDebug(`Argüman handle: %o`, y.argv);
-                let mainCommand = y.argv._[0],
-                    entity = y.argv._[1]
+                let mainCommand = y.argv._[0]
+                let entity = y.argv._[1]
 
                 switch (entity) {
                     case 'nfprofile':
@@ -55,10 +55,11 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _mainCommands) {
                     case "post":
                     case "put":
                     case "modify":
-                        options.data.demandOption = !!!y.argv.f
+                        options.data.demandOption = !!!y.argv.file
+                        options.file.demandOption = !!!y.argv.data
                         break;
                     case "delete":
-                        options.data.demandOption = !!!y.argv.f
+                        options.data.demandOption = !!!y.argv.file
                         break;
                     default:
                         console.error("Bu argümanı bilemedim :( ");
@@ -76,6 +77,7 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _mainCommands) {
                         _paths[_entity].indexOf(cmd) > -1
                     })
                 }
+
                 const getCommandEntities = (_cmd) => {
                     var entityNames = Object.keys(_paths)
                     var r = entityNames.filter(entity => {
@@ -135,11 +137,10 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _mainCommands) {
                          * 
                          * ['post','put'].find(k=>['get', 'set', 'put', 'post', 'delete'].includes(k)) 
                          */
-                        httpMethodName = ['post', 'put'].find(q => _paths[entity].includes('post')); break;
+                        httpMethodName = ['post', 'put'].find(q => _paths[entity].includes(q)); break;
                 }
 
                 log.appDebug(`2. commandHandle > mainCommand: %s > argv: %o > cert: %o > httpMethodName: %s`, mainCommand, argv, cert, httpMethodName);
-
 
                 if (httpMethodName == undefined) { // mainCommand == set undefined dönerse burada hata fırlatılacak 
                     throw new Error(`${entity} Adlı varlık elemanı için veri girmeye uygun metot yok!`);
@@ -203,6 +204,57 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _mainCommands) {
                     }
                 }
             })
+        },
+        check: argv => {
+            const mainCommand = argv._[0]
+            // const entity = argv._[1]
+            log.appDebug("yargs check > argv: %o", argv)
+
+            switch (mainCommand) {
+                case 'set':
+                case 'modify':
+                case 'delete':
+                    log.appDebug("set,modify,delete komutları veri gelmezse çalıştırılmaz kontrolü yapılacak...")
+                    let fileOrDataExist = (!!argv.data || !!argv.dt || !!argv.file || !!argv.f)
+                    log.appDebug("> !!argv.data: %o > !!argv.data: %o >!!argv.file: %o > || !!argv.f: %o", !!argv.data, !!argv.data, !!argv.file, !!argv.f)
+                    log.appDebug("(!!argv.data || !!argv.dt || !!argv.file || !!argv.f) %s", fileOrDataExist)
+                    if (fileOrDataExist == false) {
+                        return 'Eklemek istenilen veri file veya data argümanlarıyla sağlanmalıdır!'
+                    }
+                    break;
+            }
+
+            switch (true) {
+                case (argv.cacert && !fs.existsSync(argv.cacert)):
+                    return `Sunucu doğrulama sertifikası belirtilen yerde yok!`
+                case (argv.key && !fs.existsSync(argv.key)):
+                    return `Sunucu sertifikası gizli anahtar dosyası belirtilen yerde yok!`
+                case (argv.cert && !fs.existsSync(argv.cert)):
+                    return `Sunucu sertifikası açık anahtar dosyası belirtilen yerde yok!`
+                case (argv.pfx && !fs.existsSync(argv.pfx)):
+                    return `Sunucu açık ve gizli anahtarın yer aldığı pfx dosyası belirtilen yerde yok!`
+                case ((argv.file && argv.file != '-') && !fs.existsSync(argv.file)):
+                    console.log("----- 4");
+                    return `"${argv.file}" Dosyası sistemde bulunamadı!`
+            }
+
+            if (argv.data && mainCommand != "delete") {
+                try {
+                    JSON.parse(argv.data)
+                } catch (err) {
+                    return `"${argv.data}" Veri JSON'a dönüştürülebilmelidir!`
+                }
+            }
+
+            // if (argv.file && argv.file != '-') {
+            //     if (fs.existsSync(argv.file) == false) {
+            //         return `"${argv.file}" Dosyası sistemde bulunamadı!`
+            //     }
+            // }
+
+            process.env.PRETTY_PRINT = (argv.p || !!argv.printPretty)
+
+            return true
         }
     }
 
@@ -227,51 +279,7 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _mainCommands) {
                 //   .example(`$0 ${mainCommand} <entity> -t localhost:8009 -c ./localhost.crt -f ./data_put`, `${commandDescs[mainCommand].desc}`)
                 //   .example(`cat ./data_put | $0 ${mainCommand} <entity> -t localhost:8009 -c ./localhost.crt -f -`, `${commandDescs[mainCommand].desc}`)
                 .demandCommand(2, 2, 'Devam edebilmek için en az 2 komut yazmalısınız!')
-                .check(argv => {
-                    const mainCommand = argv._[0]
-                    // const entity = argv._[1]
-                    log.appDebug("yargs check > argv: %o", argv)
-
-                    switch (mainCommand) {
-                        case 'set':
-                        case 'modify':
-                        case 'delete':
-                            log.appDebug("set,modify,delete komutları veri gelmezse çalıştırılmaz kontrolü yapılacak...")
-                            let fileOrDataExist = (!!argv.data || !!argv.dt || !!argv.file || !!argv.f)
-                            log.appDebug("> !!argv.data: %o > !!argv.data: %o >!!argv.file: %o > || !!argv.f: %o", !!argv.data, !!argv.data, !!argv.file, !!argv.f)
-                            log.appDebug("(!!argv.data || !!argv.dt || !!argv.file || !!argv.f) %s", fileOrDataExist)
-                            if (fileOrDataExist == false) {
-                                throw new Error('Eklemek istenilen veri file veya data argümanlarıyla sağlanmalıdır!')
-                            }
-                            break;
-                        default:
-                            break
-                    }
-
-                    if (argv.data && mainCommand != "delete") {
-                        try {
-                            JSON.parse(argv.data)
-                        } catch (err) {
-                            return `"${argv.data}" Veri JSON'a dönüştürülebilmelidir!`
-                        }
-                    }
-
-                    if (argv.file && argv.file != '-') {
-                        if (fs.existsSync(argv.file) == false) {
-                            return `"${argv.file}" Dosyası sistemde bulunamadı!`
-                        }
-                    }
-
-                    if (argv.cert) {
-                        //  TODO: sertifika dosyaları (key, cert, cacert) mvcut mu?
-                        // if (fs.existsSync(argv.cert) == false)
-                        //     return `"${argv.cert}" Sertifika dosyası sistemde bulunamadı!`
-                    }
-
-                    process.env.PRETTY_PRINT = (argv.p || !!argv.printPretty)
-
-                    return true
-                })
+                .check(yargsModule.check)
                 .argv
 
         } catch (error) {

@@ -12,7 +12,7 @@ describe('NSSF', function () {
     const nfJsFilePath = './src/nssf.js'
     const outputFilePath = './cikti.txt'
 
-    describe.only('Eksik parametre uyarılarında', function () {
+    describe('Eksik parametre uyarılarında', function () {
 
         it('dest Noksan bırakılamaz hatası verir', async function () {
             // GIVEN
@@ -28,11 +28,10 @@ describe('NSSF', function () {
             try {
                 // WHEN
                 const response = await cmd.execute(nfJsFilePath, args);
-                console.log(">>>> response: ", response);
 
                 // THEN
             } catch (error) {
-                expect(error)
+                expect(error.includes('Missing required argument: dest'))
             }
         });
 
@@ -50,11 +49,10 @@ describe('NSSF', function () {
             try {
                 // WHEN
                 const response = await cmd.execute(nfJsFilePath, args);
-                console.log(">>>> response: ", response);
 
                 // THEN
             } catch (error) {
-                expect(error)
+                expect(error.includes('Not enough arguments following: o'))
             }
         });
 
@@ -72,11 +70,9 @@ describe('NSSF', function () {
             try {
                 // WHEN
                 const response = await cmd.execute(nfJsFilePath, args);
-                console.log(">>>> response: ", response);
-                // expect(response.contains('ConnectionPoolSize'))
+
                 // THEN
             } catch (error) {
-                console.log(">>> errorrrr: ", error);
                 expect(error.toString().includes('UNABLE_TO_VERIFY_LEAF_SIGNATURE'))
             }
         });
@@ -100,6 +96,60 @@ describe('NSSF', function () {
                 // THEN
             } catch (error) {
                 console.log(">>> errorrrr: ", error);
+            }
+        });
+
+        it('--cacert ile verilen dosya yolu yanlış olduğunda hata döner', async function () {
+            // GIVEN
+            var args = [
+                'get', 'db'
+                , '--dest', 'localhost:8103'
+                , '-r', true
+                , '--cacert', './test/nssf_localhost1.crt'
+                // , '--loglevel=nolog'
+                // , '-o' , outputFilePath
+                // , '-q', true
+            ];
+
+            try {
+                // WHEN
+                const response = await cmd.execute(nfJsFilePath, args);
+
+                // THEN
+            } catch (error) {
+                expect(error.toString().includes('UNABLE_TO_VERIFY_LEAF_SIGNATURE'))
+            }
+        });
+
+        it.only('-r: true ile geçersiz sertifikanın reddedildiği ve cacert ile sunucu sertifikasının kök sertifikasının verildiğinde NBI isteği başarılı döner', async function () {
+            /**
+             * --rejectUnauthorized=true olarak işaretlendiğinde geçersiz sertifika durumunda hata verir
+             *  > Sertifikanın verildiği domain adı (DNS) veya IP adresi 
+             *    eğer istek yapılan sunucunun sertifikasında kayıtlı değilse
+             *  > Sertifikanın geçerlilik süresi geçmişse
+             *  > Kök sertifika otoritesi tarafından imzalanmamış ise
+             * 
+             * Sunucu tarafındaki sertifika eğer bir kök sertifikayla imzalanmış ise 
+             * cacert parametresine bu kök serfifikanın açık anahtarı (public key) verilir
+             */
+            // GIVEN
+            var args = [
+                'get', 'db'
+                , '--dest', 'localhost:8103'
+                , '-r', true
+                , '--cacert', './test/nssf_localhost.crt'
+                // , '--loglevel=nolog'
+                // , '-o' , outputFilePath
+                // , '-q', true
+            ];
+
+            try {
+                // WHEN
+                const response = await cmd.execute(nfJsFilePath, args);
+                console.log(">>> response:", response);
+                // THEN
+            } catch (error) {
+                expect(error.toString().includes('UNABLE_TO_VERIFY_LEAF_SIGNATURE'))
             }
         });
     })
