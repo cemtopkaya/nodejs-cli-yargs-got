@@ -6,7 +6,7 @@ let paths = {
     , "logging": ['get', 'set', 'modify', 'put', 'patch']
     , "nrf": ['get', 'set', 'modify', 'put', 'patch']
     , "db": ['get', 'set', 'modify', 'put', 'patch']
-    , "nf-put-log-priority": ['modify', 'put']
+    , "nf-put-log-priority": ['set', 'put']
     , "nsiprofiles": ['get', 'set', 'post', 'delete']
     , "nssrules": ['get', 'set', 'post', 'delete']
     , "configurednssai": ['get', 'set', 'post', 'delete']

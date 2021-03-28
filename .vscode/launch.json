@@ -56,7 +56,8 @@
                 "<node_internals>/**"
             ],
             "env": {
-                "DEBUG_TEST":"true"
+                "DEBUG_TEST":"true",
+                "NODE_ENV":"dev"
             },
             "type": "pwa-node"
         },

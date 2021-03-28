@@ -96,7 +96,7 @@ describe('NSSF', function () {
                 expect(responseBody.startsWith(expectedMessagePart)).to.be.true
             } catch (error) {
                 loge(">>> error: ", error)
-                throw(error)
+                throw (error)
             }
 
         });
@@ -528,14 +528,14 @@ describe('NSSF', function () {
                 expect(error.includes(expectedMessagePart)).to.be.true
             }
         });
-        
-        it.only('nfprofile "allowedNfDomains" Dizisine kabul bir metin elemanı eklenir ve gönderilir, sonuç 200 koduyla başarılı döner', async function () {
+
+        it('nfprofile "allowedNfDomains" Dizisine kabul bir metin elemanı eklenir ve gönderilir, sonuç 200 koduyla başarılı döner', async function () {
             // GIVEN
             var newData = { "allowedNfDomains": ["cem"], "allowedNfTypes": ["NSSF", "AMF"], "allowedNssais": [{ "sd": "", "sst": 1 }], "allowedPlmns": [], "amfInfo": { "amfRegionId": "", "amfSetId": "", "backupInfoAmfFailure": [], "backupInfoAmfRemoval": [], "guamiList": [], "n2InterfaceAmfInfo": { "amfName": "", "ipv4EndpointAddress": [], "ipv6EndpointAddress": [] }, "taiList": [], "taiRangeList": [] }, "ausfInfo": { "groupId": "", "routingIndicators": [], "supiRanges": [] }, "bsfInfo": { "dnnList": [], "ipDomainList": [], "ipv4AddressRanges": [], "ipv6PrefixRanges": [] }, "capacity": 0, "chfInfo": { "gpsiRangeList": [], "plmnRangeList": [], "supiRangeList": [] }, "customInfo": null, "defaultNotificationSubscriptions": [], "fqdn": "", "heartBeatTimer": 3, "interPlmnFqdn": "", "ipv4Addresses": ["10.10.23.8"], "ipv6Addresses": [], "load": 0, "locality": "", "nfInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "nfProfileChangesInd": false, "nfProfileChangesSupportInd": false, "nfServicePersistence": false, "nfServices": [{ "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8100, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "serviceName": "nnssf-nsselection", "supportedFeatures": "", "versions": [{ "apiFullVersion": "v1", "apiVersionInUri": "/nnssf-nsselection/v1", "expiry": "" }] }, { "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8101, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "serviceName": "nnssf-nssaiavailability", "supportedFeatures": "", "versions": [{ "apiFullVersion": "", "apiVersionInUri": "/nnssf-nssaiavailability/v1", "expiry": "" }] }], "nfStatus": "REGISTERED", "nfType": "NSSF", "nsiList": [], "pcfInfo": { "dnnList": [], "rxDiamHost": "", "rxDiamRealm": "", "supiRanges": [] }, "perPlmnSnssaiList": [], "plmnList": [], "priority": 0, "recoveryTime": "", "sNssais": [{ "sd": "", "sst": 1 }], "smfInfo": { "accessType": [], "pgwFqdn": "", "sNssaiSmfInfoList": [], "taiList": [], "taiRangeList": [] }, "udmInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "routingIndicators": [], "supiRanges": [] }, "udrInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "supiRanges": [], "supportedDataSets": [] }, "upfInfo": { "interfaceUpfInfoList": [], "iwkEpsInd": false, "pduSessionTypes": [], "sNssaiUpfInfoList": [], "smfServingArea": [] } }
             var args = [
                 '--dest', 'localhost:8103'
                 , '-r', 'false'
-                , '--loglevel','debug'
+                , '--loglevel', 'debug'
                 // , '-q', true
                 , '--data', `'${JSON.stringify(newData)}'`
                 , 'set', 'nfprofile'
@@ -554,7 +554,358 @@ describe('NSSF', function () {
                 // expect(responseBody.includes(expectedMessagePart)).to.be.true
             } catch (error) {
                 loge(">>>>>>>>>> error: ", error)
-                throw(error)
+                throw (error)
+            }
+        });
+
+        it('general güncellenir ve sonuç nesne gönderilen ile aynı döner', async function () {
+            // GIVEN
+            var newData = {
+                "ClientCount": 94,
+                "ClientTimeout": 93000,
+                "HomePlmnId": {
+                    "mcc": "901",
+                    "mnc": "901"
+                },
+                "NumberofServingServerThreads": 94
+            }
+            var args = [
+                '--dest', 'localhost:8103'
+                , '-r', 'false'
+                , '--loglevel', 'debug'
+                // , '-q', true
+                , '--data', `'${JSON.stringify(newData)}'`
+                , 'set', 'general'
+            ];
+            const expectedResponseObject = newData
+
+
+            try {
+                // WHEN
+                const response = await cmd.execute(nfJsFilePath, args);
+                const responseBody = response.trim().split(EOL).pop()
+                let actualObject = JSON.parse(responseBody);
+                log(">>>> newData: ", newData);
+                log(">>>> actualObject: ", actualObject);
+
+                // THEN
+                expect(actualObject).to.eql(newData)
+            } catch (error) {
+                loge(">>>>>>>>>> error: ", error)
+                throw (error)
+            }
+        });
+
+        it('security güncellenir ve sonuç nesne gönderilen ile aynı döner', async function () {
+            // GIVEN
+            var newData = {
+                "JWTAuthenticate": false,
+                "MutualAuthenticate": false,
+                "OAuth2": {
+                    "PrivateKey": "11certificate/jwt.key",
+                    "PublicKey": "11certificate/jwt.pub"
+                },
+                "TLS": {
+                    "PrivateKey": "11certificate/client.key"
+                },
+                "TLSSecure": false
+            }
+
+            var args = [
+                '--dest', 'localhost:8103'
+                , '-r', 'false'
+                , '--loglevel', 'debug'
+                // , '-q', true
+                , '--data', `'${JSON.stringify(newData)}'`
+                , 'set', 'security'
+            ];
+            const expectedResponseObject = newData
+
+
+            try {
+                // WHEN
+                const response = await cmd.execute(nfJsFilePath, args);
+                const responseBody = response.trim().split(EOL).pop()
+                let actualObject = JSON.parse(responseBody);
+                log(">>>> newData: ", newData);
+                log(">>>> actualObject: ", actualObject);
+
+                // THEN
+                expect(actualObject).to.eql(newData)
+            } catch (error) {
+                loge(">>>>>>>>>> error: ", error)
+                throw (error)
+            }
+        });
+
+        it('logging güncellenir ve sonuç nesne gönderilen ile aynı döner', async function () {
+            // GIVEN
+            var newData = {
+                "Directory": "/var/log/cinar/nssf/22",
+                "DisplayLog": false,
+                "FileName": "NSSF11",
+                "LogLevel": "INFO"
+            }
+
+            var args = [
+                '--dest', 'localhost:8103'
+                , '-r', 'false'
+                , '--loglevel', 'debug'
+                // , '-q', true
+                , '--data', `'${JSON.stringify(newData)}'`
+                , 'set', 'logging'
+            ];
+            const expectedResponseObject = newData
+
+
+            try {
+                // WHEN
+                const response = await cmd.execute(nfJsFilePath, args);
+                const responseBody = response.trim().split(EOL).pop()
+                let actualObject = JSON.parse(responseBody);
+                log(">>>> newData: ", newData);
+                log(">>>> actualObject: ", actualObject);
+
+                // THEN
+                expect(actualObject).to.eql(newData)
+            } catch (error) {
+                loge(">>>>>>>>>> error: ", error)
+                throw (error)
+            }
+        });
+
+        it('nrf güncellenir ve sonuç nesne gönderilen ile aynı döner', async function () {
+            // GIVEN
+            var newData = [
+                {
+                    "ClientCount": 14,
+                    "ClientTimeout": 13000,
+                    "DiscServicePort": 18006,
+                    "IPAddress": "110.10.23.8",
+                    "NfmServicePort": 18001,
+                    "OAuth2ServicePort": 18007,
+                    "TAccessTokenPeriod": 110000,
+                    "TCheckPeriod": 160000,
+                    "TDiscoveryPeriod": 13000,
+                    "TRetryPeriod": 13000
+                }
+            ]
+
+            var args = [
+                '--dest', 'localhost:8103'
+                , '-r', 'false'
+                , '--loglevel', 'debug'
+                // , '-q', true
+                , '--data', `'${JSON.stringify(newData)}'`
+                , 'set', 'nrf'
+            ];
+            const expectedResponseObject = newData
+
+
+            try {
+                // WHEN
+                const response = await cmd.execute(nfJsFilePath, args);
+                const responseBody = response.trim().split(EOL).pop()
+                let actualObject = JSON.parse(responseBody);
+                log(">>>> newData: ", newData);
+                log(">>>> actualObject: ", actualObject);
+
+                // THEN
+                expect(actualObject).to.eql(newData)
+            } catch (error) {
+                loge(">>>>>>>>>> error: ", error)
+                throw (error)
+            }
+        });
+
+        it('db güncellenir ve sonuç nesne gönderilen ile aynı döner', async function () {
+            // GIVEN
+            var newData = {
+                "ConnectionPoolSize": 14,
+                "ConnectionRetryPeriod": 160000,
+                "ConnectionTimeout": 11000,
+                "DatabaseName": "1cinarnssftest",
+                "DatabaseType": "1MONGO",
+                "Password": "1P5vKG6vE",
+                "Port": 127017,
+                "Server": "110.5.0.2",
+                "Tables": [
+                    "1cinarnsicollection",
+                    "1cinarnssrulescollection",
+                    "1cinarconfigurednssaicollection",
+                    "1cinaramfavailabilitycollection",
+                    "1cinarnssfsubscinarcollection"
+                ],
+                "UserName": "1cnrusr"
+            }
+
+            var args = [
+                '--dest', 'localhost:8103'
+                , '-r', 'false'
+                , '--loglevel', 'debug'
+                // , '-q', true
+                , '--data', `'${JSON.stringify(newData)}'`
+                , 'set', 'db'
+            ];
+            const expectedResponseObject = newData
+
+
+            try {
+                // WHEN
+                const response = await cmd.execute(nfJsFilePath, args);
+                const responseBody = response.trim().split(EOL).pop()
+                let actualObject = JSON.parse(responseBody);
+                log(">>>> newData: ", newData);
+                log(">>>> actualObject: ", actualObject);
+
+                // THEN
+                expect(actualObject).to.eql(newData)
+            } catch (error) {
+                loge(">>>>>>>>>> error: ", error)
+                throw (error)
+            }
+        });
+
+        it('nf-put-log-priority güncellenir ve sonuç nesne gönderilen ile aynı döner', async function () {
+            // GIVEN
+            var newData = { "LogLevel": "INFO" }
+
+            var args = [
+                '--dest', 'localhost:8105'
+                , '-r', 'false'
+                , '--loglevel', 'debug'
+                // , '-q', true
+                , '--data', `'${JSON.stringify(newData)}'`
+                , 'set', 'nf-put-log-priority'
+            ];
+            const expectedResponseObject = newData
+
+
+            try {
+                // WHEN
+                const response = await cmd.execute(nfJsFilePath, args);
+                const responseBody = response.trim().split(EOL).pop()
+                let actualObject = JSON.parse(responseBody);
+                log(">>>> newData: ", newData);
+                log(">>>> actualObject: ", actualObject);
+
+                // THEN
+                expect(actualObject).to.eql(newData)
+            } catch (error) {
+                loge(">>>>>>>>>> error: ", error)
+                throw (error)
+            }
+        });
+
+        it('nsiprofiles güncellenir ve sonuç nesne gönderilen ile aynı döner', async function () {
+            // GIVEN
+            var randomName = "cem" +Math.floor(Math.random() * 1000)
+            log(">>> randomName : ", randomName)
+            const newData = { "name": randomName, "nrfAccessTokenUri": "token_uri", "nrfId": "123", "nrfNfMgtUri": "123", "nsiId": "123", "targetAmfSets": [{ "regionId": "12", "setId": "12", "setFqdn": "" }] }
+
+            const argsSet = [
+                '--dest', 'localhost:8102'
+                , '-r', 'false'
+                , '--loglevel', 'debug'
+                // , '-q', true
+                , '--data', `'${JSON.stringify(newData)}'`
+                , 'set', 'nsiprofiles'
+            ];
+            const argsGet = [
+                '--dest', 'localhost:8102'
+                , '-r', 'false'
+                , '--loglevel', 'nolog'
+                // , '-q', true
+                // , '--data', `'${JSON.stringify(newData)}'`
+                , 'get', 'nsiprofiles'
+            ];
+            const expectedResponseObject = newData
+
+
+            try {
+                // WHEN
+                await cmd.execute(nfJsFilePath, argsSet);
+                const response = await cmd.execute(nfJsFilePath, argsGet);
+                const responseBody = response.trim().split(EOL).pop()
+                log(">>>> responseBody: ", responseBody);
+
+                // THEN
+                expect(responseBody.includes(randomName)).to.be.true
+            } catch (error) {
+                loge(">>>>>>>>>> error: ", error)
+                throw (error)
+            }
+        });
+
+        it('nsiprofiles aynı veri tekrar kayıt edildiğinde 409 (conflict) sonuç nesne döner', async function () {
+            // GIVEN
+            var randomName = Math.floor(Math.random() * 1000)
+            log(">>> randomName : ", randomName)
+            var newData = { "name": "cem" + randomName, "nrfAccessTokenUri": "token_uri", "nrfId": "123", "nrfNfMgtUri": "123", "nsiId": "123", "targetAmfSets": [{ "regionId": "12", "setId": "12", "setFqdn": "" }] }
+
+            var args = [
+                '--dest', 'localhost:8102'
+                , '-r', 'false'
+                , '--loglevel', 'debug'
+                // , '-q', true
+                , '--data', `'${JSON.stringify(newData)}'`
+                , 'set', 'nsiprofiles'
+            ];
+            const expectedResponseObject = newData
+
+
+            try {
+                // WHEN
+                // İlk kayıt
+                const response = await cmd.execute(nfJsFilePath, args);
+                const responseBody = response.trim().split(EOL).pop()
+                let actualObject = JSON.parse(responseBody);
+                log(">>>> actualObject: ", actualObject);
+
+                // 2. kez giriyoruz
+                await cmd.execute(nfJsFilePath, args);
+
+            } catch (error) {
+                // THEN
+                loge(">>>>>>>>>> error: ", error)
+                expect(error.includes('HTTPError: Response code 409 (Conflict)')).to.be.true
+                throw (error)
+            }
+        });
+
+        it.only('nsiprofiles silinir sonuç nesne döner', async function () {
+            // GIVEN
+            var randomName = Math.floor(Math.random() * 1000)
+            log(">>> randomName : ", randomName)
+            var newData = { "name": "cem" + randomName, "nrfAccessTokenUri": "token_uri", "nrfId": "123", "nrfNfMgtUri": "123", "nsiId": "123", "targetAmfSets": [{ "regionId": "12", "setId": "12", "setFqdn": "" }] }
+
+            var args = [
+                '--dest', 'localhost:8102'
+                , '-r', 'false'
+                , '--loglevel', 'debug'
+                // , '-q', true
+                , '--data', `'${JSON.stringify(newData)}'`
+                , 'set', 'nsiprofiles'
+            ];
+            const expectedResponseObject = newData
+
+
+            try {
+                // WHEN
+                // İlk kayıt
+                const response = await cmd.execute(nfJsFilePath, args);
+                const responseBody = response.trim().split(EOL).pop()
+                let actualObject = JSON.parse(responseBody);
+                log(">>>> actualObject: ", actualObject);
+
+                // 2. kez giriyoruz
+                await cmd.execute(nfJsFilePath, args);
+
+            } catch (error) {
+                // THEN
+                loge(">>>>>>>>>> error: ", error)
+                expect(error.includes('HTTPError: Response code 409 (Conflict)')).to.be.true
+                throw (error)
             }
         });
 
