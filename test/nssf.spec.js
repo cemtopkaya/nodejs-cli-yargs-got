@@ -798,7 +798,8 @@ describe('NSSF', function () {
                 var newData = { "name": randomName, "nrfAccessTokenUri": "token_uri", "nrfId": "123", "nrfNfMgtUri": "123", "nsiId": "123", "targetAmfSets": [{ "regionId": "12", "setId": "12", "setFqdn": "" }] }
 
                 var args = [
-                    ...argsMaster
+                    ...argsMaster.filter(a=>!(a.startsWith('--loglevel')||a.startsWith('-q')))
+                    , '--loglevel=debug'
                     , '--data', `'${JSON.stringify(newData)}'`
                     , 'set', 'nsiprofiles'
                 ];
@@ -827,13 +828,15 @@ describe('NSSF', function () {
                 const newData = { "name": randomName, "nrfAccessTokenUri": "token_uri", "nrfId": "123", "nrfNfMgtUri": "123", "nsiId": "123", "targetAmfSets": [{ "regionId": "12", "setId": "12", "setFqdn": "" }] }
 
                 const argsSet = [
-                    ...argsMaster
+                    ...argsMaster.filter(a=>!(a.startsWith('--loglevel')||a.startsWith('-q')))
+                    , '--loglevel=debug'
                     , '--data', `'${JSON.stringify(newData)}'`
                     , 'set', 'nsiprofiles'
                 ];
 
                 const argsDelete = [
-                    ...argsMaster
+                    ...argsMaster.filter(a=>!(a.startsWith('--loglevel')||a.startsWith('-q')))
+                    , '--loglevel=debug'
                     , '--data', `'${randomName}'`
                     , 'delete', 'nsiprofiles'
                 ];
@@ -889,7 +892,7 @@ describe('NSSF', function () {
                 }
 
                 const argsSet = [
-                    ...(argsMaster.filter(a=>!(a.startsWith('--loglevel')))
+                    ...argsMaster.filter(a=>!(a.startsWith('--loglevel')||a.startsWith('-q')))
                     , '--loglevel=debug'
                     , '--data', `'${JSON.stringify(newData)}'`
                     , 'set', 'nssrules'
@@ -939,13 +942,15 @@ describe('NSSF', function () {
                 }
 
                 const argsSet = [
-                    ...argsMaster
+                    ...argsMaster.filter(a=>!(a.startsWith('--loglevel')||a.startsWith('-q')))
+                    , '--loglevel=debug'
                     , '--data', `'${JSON.stringify(newData)}'`
                     , 'set', 'nssrules'
                 ];
 
                 const argsDelete = [
-                    ...argsMaster
+                    ...argsMaster.filter(a=>!(a.startsWith('--loglevel')||a.startsWith('-q')))
+                    , '--loglevel=debug'
                     , '--data', `'${randomName}'`
                     , 'delete', 'nssrules'
                 ];
@@ -990,7 +995,8 @@ describe('NSSF', function () {
                 }
 
                 const argsSet = [
-                    ...argsMaster
+                    ...argsMaster.filter(a=>!(a.startsWith('--loglevel')||a.startsWith('-q')))
+                    , '--loglevel=debug'
                     , '--data', `'${JSON.stringify(newData)}'`
                     , 'set', 'configurednssai'
                 ];
