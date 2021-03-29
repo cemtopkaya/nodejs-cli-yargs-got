@@ -797,6 +797,10 @@ describe('NSSF', function () {
             }
         });
 
+    });
+
+    describe('NSI Slice', function () {
+
         it('nsiprofiles güncellenir ve sonuç nesne gönderilen ile aynı döner', async function () {
             // GIVEN
             var randomName = "cem" + Math.floor(Math.random() * 1000)
@@ -958,7 +962,7 @@ describe('NSSF', function () {
                 let response = await cmd.execute(nfJsFilePath, argsSet);
                 let responseBody = response.trim().split(EOL).pop()
                 log(">>>> responseBody: ", responseBody);
-                
+
                 // THEN
                 expect(responseBody.includes('":status":201')).to.be.true
             } catch (error) {
