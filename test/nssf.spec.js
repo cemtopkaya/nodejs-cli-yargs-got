@@ -9,7 +9,7 @@ describe('NSSF', function () {
     const nfJsFilePath = './src/nssf.js'
     const outputFilePath = './cikti.txt'
     var argsCommon = [
-        , '-r=false'
+        '-r=false'
         , '--loglevel=debug'
         , '-q=false'
     ];
@@ -658,10 +658,9 @@ describe('NSSF', function () {
     describe('Configuration', function () {
         
         let argsMaster = [...argsCommon, '--dest=localhost:8102'];
-console.log("----------------- > ",argsMaster)
-        describe('NSI Slice', function () {
+        describe.only('NSI Slice', function () {
 
-            it.only('nsiprofiles\'nin Bilgileri çekilir', async function () {
+            it('nsiprofiles\'nin Bilgileri çekilir', async function () {
                 // GIVEN
                 var args = [
                     ...argsMaster
@@ -669,11 +668,10 @@ console.log("----------------- > ",argsMaster)
                     , 'get', 'nsiprofiles'
                 ];
                 const expectedObject = []
-                const fileContentStartsWith = '[]'
+                const fileContentStartsWith = '['
 
                 try {
                     // WHEN
-console.log("----------------- > ",args)
                     const response = await cmd.execute(nfJsFilePath, args);
                     log(">>>> response: ", response);
 
@@ -702,7 +700,7 @@ console.log("----------------- > ",args)
                     , 'get', 'nssrules'
                 ];
                 const expectedObject = []
-                const fileContentStartsWith = '[]'
+                const fileContentStartsWith = '['
 
                 try {
                     // WHEN
@@ -734,7 +732,7 @@ console.log("----------------- > ",args)
                     , 'get', 'configurednssai'
                 ];
                 const expectedObject = []
-                const fileContentStartsWith = '[]'
+                const fileContentStartsWith = '['
 
                 try {
                     // WHEN
@@ -891,7 +889,8 @@ console.log("----------------- > ",args)
                 }
 
                 const argsSet = [
-                    ...argsMaster
+                    ...(argsMaster.filter(a=>!(a.startsWith('--loglevel')))
+                    , '--loglevel=debug'
                     , '--data', `'${JSON.stringify(newData)}'`
                     , 'set', 'nssrules'
                 ];
