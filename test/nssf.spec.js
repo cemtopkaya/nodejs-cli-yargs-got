@@ -502,7 +502,7 @@ describe('NSSF', function () {
 
     });
 
-    describe('SET ile', function () {
+    describe('SET ve DELETE ile', function () {
         it('nfprofile "allowedNfTypes" Dizisine kabul edilmeyecek bilgi gönderilir ve 400 hata kodu döner', async function () {
             // GIVEN
             var newData = { "allowedNfDomains": [], "allowedNfTypes": ["CEM", "NSSF", "AMF"], "allowedNssais": [{ "sd": "", "sst": 1 }], "allowedPlmns": [], "amfInfo": { "amfRegionId": "", "amfSetId": "", "backupInfoAmfFailure": [], "backupInfoAmfRemoval": [], "guamiList": [], "n2InterfaceAmfInfo": { "amfName": "", "ipv4EndpointAddress": [], "ipv6EndpointAddress": [] }, "taiList": [], "taiRangeList": [] }, "ausfInfo": { "groupId": "", "routingIndicators": [], "supiRanges": [] }, "bsfInfo": { "dnnList": [], "ipDomainList": [], "ipv4AddressRanges": [], "ipv6PrefixRanges": [] }, "capacity": 0, "chfInfo": { "gpsiRangeList": [], "plmnRangeList": [], "supiRangeList": [] }, "customInfo": null, "defaultNotificationSubscriptions": [], "fqdn": "", "heartBeatTimer": 3, "interPlmnFqdn": "", "ipv4Addresses": ["10.10.23.8"], "ipv6Addresses": [], "load": 0, "locality": "", "nfInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "nfProfileChangesInd": false, "nfProfileChangesSupportInd": false, "nfServicePersistence": false, "nfServices": [{ "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8100, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "serviceName": "nnssf-nsselection", "supportedFeatures": "", "versions": [{ "apiFullVersion": "v1", "apiVersionInUri": "/nnssf-nsselection/v1", "expiry": "" }] }, { "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8101, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "serviceName": "nnssf-nssaiavailability", "supportedFeatures": "", "versions": [{ "apiFullVersion": "", "apiVersionInUri": "/nnssf-nssaiavailability/v1", "expiry": "" }] }], "nfStatus": "REGISTERED", "nfType": "NSSF", "nsiList": [], "pcfInfo": { "dnnList": [], "rxDiamHost": "", "rxDiamRealm": "", "supiRanges": [] }, "perPlmnSnssaiList": [], "plmnList": [], "priority": 0, "recoveryTime": "", "sNssais": [{ "sd": "", "sst": 1 }], "smfInfo": { "accessType": [], "pgwFqdn": "", "sNssaiSmfInfoList": [], "taiList": [], "taiRangeList": [] }, "udmInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "routingIndicators": [], "supiRanges": [] }, "udrInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "supiRanges": [], "supportedDataSets": [] }, "upfInfo": { "interfaceUpfInfoList": [], "iwkEpsInd": false, "pduSessionTypes": [], "sNssaiUpfInfoList": [], "smfServingArea": [] } }
@@ -799,7 +799,7 @@ describe('NSSF', function () {
 
         it('nsiprofiles güncellenir ve sonuç nesne gönderilen ile aynı döner', async function () {
             // GIVEN
-            var randomName = "cem" +Math.floor(Math.random() * 1000)
+            var randomName = "cem" + Math.floor(Math.random() * 1000)
             log(">>> randomName : ", randomName)
             const newData = { "name": randomName, "nrfAccessTokenUri": "token_uri", "nrfId": "123", "nrfNfMgtUri": "123", "nsiId": "123", "targetAmfSets": [{ "regionId": "12", "setId": "12", "setFqdn": "" }] }
 
@@ -839,28 +839,26 @@ describe('NSSF', function () {
 
         it('nsiprofiles aynı veri tekrar kayıt edildiğinde 409 (conflict) sonuç nesne döner', async function () {
             // GIVEN
-            var randomName = Math.floor(Math.random() * 1000)
+            var randomName = "cem" + Math.floor(Math.random() * 1000)
             log(">>> randomName : ", randomName)
-            var newData = { "name": "cem" + randomName, "nrfAccessTokenUri": "token_uri", "nrfId": "123", "nrfNfMgtUri": "123", "nsiId": "123", "targetAmfSets": [{ "regionId": "12", "setId": "12", "setFqdn": "" }] }
+            var newData = { "name": randomName, "nrfAccessTokenUri": "token_uri", "nrfId": "123", "nrfNfMgtUri": "123", "nsiId": "123", "targetAmfSets": [{ "regionId": "12", "setId": "12", "setFqdn": "" }] }
 
             var args = [
                 '--dest', 'localhost:8102'
                 , '-r', 'false'
                 , '--loglevel', 'debug'
-                // , '-q', true
+                , '-p', true
                 , '--data', `'${JSON.stringify(newData)}'`
                 , 'set', 'nsiprofiles'
             ];
-            const expectedResponseObject = newData
-
 
             try {
                 // WHEN
                 // İlk kayıt
                 const response = await cmd.execute(nfJsFilePath, args);
                 const responseBody = response.trim().split(EOL).pop()
-                let actualObject = JSON.parse(responseBody);
-                log(">>>> actualObject: ", actualObject);
+                log(">>>> responseBody: ", responseBody);
+                expect(responseBody.includes('":status":201')).to.be.true
 
                 // 2. kez giriyoruz
                 await cmd.execute(nfJsFilePath, args);
@@ -868,18 +866,16 @@ describe('NSSF', function () {
             } catch (error) {
                 // THEN
                 loge(">>>>>>>>>> error: ", error)
-                expect(error.includes('HTTPError: Response code 409 (Conflict)')).to.be.true
-                throw (error)
+                expect(error.toString().includes('HTTPError: Response code 409 (Conflict)')).to.be.true
             }
         });
 
-        it.only('nsiprofiles silinir sonuç nesne döner', async function () {
+        it('nsiprofiles silinir sonuçta 204 durum kodu alınır', async function () {
             // GIVEN
-            var randomName = Math.floor(Math.random() * 1000)
-            log(">>> randomName : ", randomName)
-            var newData = { "name": "cem" + randomName, "nrfAccessTokenUri": "token_uri", "nrfId": "123", "nrfNfMgtUri": "123", "nsiId": "123", "targetAmfSets": [{ "regionId": "12", "setId": "12", "setFqdn": "" }] }
+            var randomName = "cem" + Math.floor(Math.random() * 1000)
+            const newData = { "name": randomName, "nrfAccessTokenUri": "token_uri", "nrfId": "123", "nrfNfMgtUri": "123", "nsiId": "123", "targetAmfSets": [{ "regionId": "12", "setId": "12", "setFqdn": "" }] }
 
-            var args = [
+            const argsSet = [
                 '--dest', 'localhost:8102'
                 , '-r', 'false'
                 , '--loglevel', 'debug'
@@ -887,58 +883,251 @@ describe('NSSF', function () {
                 , '--data', `'${JSON.stringify(newData)}'`
                 , 'set', 'nsiprofiles'
             ];
-            const expectedResponseObject = newData
 
+            const argsDelete = [
+                '--dest', 'localhost:8102'
+                , '-r', 'false'
+                , '--loglevel', 'debug'
+                // , '-q', true
+                , '--data', `'${randomName}'`
+                , 'delete', 'nsiprofiles'
+            ];
 
             try {
                 // WHEN
-                // İlk kayıt
-                const response = await cmd.execute(nfJsFilePath, args);
-                const responseBody = response.trim().split(EOL).pop()
-                let actualObject = JSON.parse(responseBody);
-                log(">>>> actualObject: ", actualObject);
 
-                // 2. kez giriyoruz
-                await cmd.execute(nfJsFilePath, args);
+                // kayıt ekliyoruz
+                let response = await cmd.execute(nfJsFilePath, argsSet);
+                let responseBody = response.trim().split(EOL).pop()
+                log(">>>> responseBody: ", responseBody);
+                expect(responseBody.includes('":status":201')).to.be.true
 
-            } catch (error) {
+                // Siliyoruz
+                response = await cmd.execute(nfJsFilePath, argsDelete);
+                responseBody = response.trim().split(EOL).pop()
+                log(">>>> responseBody: ", responseBody);
+
                 // THEN
+                expect(responseBody.includes('":status":204')).to.be.true
+            } catch (error) {
                 loge(">>>>>>>>>> error: ", error)
-                expect(error.includes('HTTPError: Response code 409 (Conflict)')).to.be.true
                 throw (error)
             }
         });
 
-        it('nfprofile\'nin Bilgileri güncellenir', async function () {
+        it('nssrules eklenir sonuçta 201 durum kodu alınır', async function () {
             // GIVEN
-            var newData = { "allowedNfDomains": [], "allowedNfTypes": ["CEM", "NSSF", "AMF"], "allowedNssais": [{ "sd": "", "sst": 1 }], "allowedPlmns": [], "amfInfo": { "amfRegionId": "", "amfSetId": "", "backupInfoAmfFailure": [], "backupInfoAmfRemoval": [], "guamiList": [], "n2InterfaceAmfInfo": { "amfName": "", "ipv4EndpointAddress": [], "ipv6EndpointAddress": [] }, "taiList": [], "taiRangeList": [] }, "ausfInfo": { "groupId": "", "routingIndicators": [], "supiRanges": [] }, "bsfInfo": { "dnnList": [], "ipDomainList": [], "ipv4AddressRanges": [], "ipv6PrefixRanges": [] }, "capacity": 0, "chfInfo": { "gpsiRangeList": [], "plmnRangeList": [], "supiRangeList": [] }, "customInfo": null, "defaultNotificationSubscriptions": [], "fqdn": "", "heartBeatTimer": 3, "interPlmnFqdn": "", "ipv4Addresses": ["10.10.23.8"], "ipv6Addresses": [], "load": 0, "locality": "", "nfInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "nfProfileChangesInd": false, "nfProfileChangesSupportInd": false, "nfServicePersistence": false, "nfServices": [{ "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8100, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "serviceName": "nnssf-nsselection", "supportedFeatures": "", "versions": [{ "apiFullVersion": "v1", "apiVersionInUri": "/nnssf-nsselection/v1", "expiry": "" }] }, { "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8101, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "serviceName": "nnssf-nssaiavailability", "supportedFeatures": "", "versions": [{ "apiFullVersion": "", "apiVersionInUri": "/nnssf-nssaiavailability/v1", "expiry": "" }] }], "nfStatus": "REGISTERED", "nfType": "NSSF", "nsiList": [], "pcfInfo": { "dnnList": [], "rxDiamHost": "", "rxDiamRealm": "", "supiRanges": [] }, "perPlmnSnssaiList": [], "plmnList": [], "priority": 0, "recoveryTime": "", "sNssais": [{ "sd": "", "sst": 1 }], "smfInfo": { "accessType": [], "pgwFqdn": "", "sNssaiSmfInfoList": [], "taiList": [], "taiRangeList": [] }, "udmInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "routingIndicators": [], "supiRanges": [] }, "udrInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "supiRanges": [], "supportedDataSets": [] }, "upfInfo": { "interfaceUpfInfoList": [], "iwkEpsInd": false, "pduSessionTypes": [], "sNssaiUpfInfoList": [], "smfServingArea": [] } }
-            var args = [
-                '--dest', 'localhost:8103'
+            var randomName = "cem" + Math.floor(Math.random() * 1000)
+            const newData = {
+                "name": randomName,
+                "amfId": "21",
+                "plmnId": {
+                    "mcc": "901",
+                    "mnc": "901"
+                },
+                "tac": "AC22",
+                "snssai": {
+                    "sst": 22,
+                    "sd": "AB0102"
+                },
+                "salience": 65235,
+                "behavior": {
+                    "grant": "ALLOWED",
+                    "accessType": "3GPP_ACCESS",
+                    "nsiProfiles": [
+                        {
+                            "name": "cem10",
+                            "salience": 65235
+                        }
+                    ]
+                }
+            }
+
+            const argsSet = [
+                '--dest', 'localhost:8102'
                 , '-r', 'false'
                 , '--loglevel', 'debug'
                 // , '-q', true
                 , '--data', `'${JSON.stringify(newData)}'`
-                , 'set', 'nfprofile'
+                , 'set', 'nssrules'
             ];
-            const expectedObject = { "allowedNfDomains": [], "allowedNfTypes": ["CEM", "NSSF", "AMF"], "allowedNssais": [{ "sd": "", "sst": 1 }], "allowedPlmns": [], "amfInfo": { "amfRegionId": "", "amfSetId": "", "backupInfoAmfFailure": [], "backupInfoAmfRemoval": [], "guamiList": [], "n2InterfaceAmfInfo": { "amfName": "", "ipv4EndpointAddress": [], "ipv6EndpointAddress": [] }, "taiList": [], "taiRangeList": [] }, "ausfInfo": { "groupId": "", "routingIndicators": [], "supiRanges": [] }, "bsfInfo": { "dnnList": [], "ipDomainList": [], "ipv4AddressRanges": [], "ipv6PrefixRanges": [] }, "capacity": 0, "chfInfo": { "gpsiRangeList": [], "plmnRangeList": [], "supiRangeList": [] }, "customInfo": null, "defaultNotificationSubscriptions": [], "fqdn": "", "heartBeatTimer": 3, "interPlmnFqdn": "", "ipv4Addresses": ["10.10.23.8"], "ipv6Addresses": [], "load": 0, "locality": "", "nfInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "nfProfileChangesInd": false, "nfProfileChangesSupportInd": false, "nfServicePersistence": false, "nfServices": [{ "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8100, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "serviceName": "nnssf-nsselection", "supportedFeatures": "", "versions": [{ "apiFullVersion": "v1", "apiVersionInUri": "/nnssf-nsselection/v1", "expiry": "" }] }, { "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8101, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "serviceName": "nnssf-nssaiavailability", "supportedFeatures": "", "versions": [{ "apiFullVersion": "", "apiVersionInUri": "/nnssf-nssaiavailability/v1", "expiry": "" }] }], "nfStatus": "REGISTERED", "nfType": "NSSF", "nsiList": [], "pcfInfo": { "dnnList": [], "rxDiamHost": "", "rxDiamRealm": "", "supiRanges": [] }, "perPlmnSnssaiList": [], "plmnList": [], "priority": 0, "recoveryTime": "", "sNssais": [{ "sd": "", "sst": 1 }], "smfInfo": { "accessType": [], "pgwFqdn": "", "sNssaiSmfInfoList": [], "taiList": [], "taiRangeList": [] }, "udmInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "routingIndicators": [], "supiRanges": [] }, "udrInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "supiRanges": [], "supportedDataSets": [] }, "upfInfo": { "interfaceUpfInfoList": [], "iwkEpsInd": false, "pduSessionTypes": [], "sNssaiUpfInfoList": [], "smfServingArea": [] } }
-
 
             try {
                 // WHEN
-                const response = await cmd.execute(nfJsFilePath, args);
+                // kayıt ekliyoruz
+                let response = await cmd.execute(nfJsFilePath, argsSet);
+                let responseBody = response.trim().split(EOL).pop()
+                log(">>>> responseBody: ", responseBody);
+                
+                // THEN
+                expect(responseBody.includes('":status":201')).to.be.true
+            } catch (error) {
+                loge(">>>>>>>>>> error: ", error)
+                throw (error)
+            }
+        });
+
+        it('nssrules silinir sonuçta 204 durum kodu alınır', async function () {
+            // GIVEN
+            var randomName = "cem" + Math.floor(Math.random() * 1000)
+            const newData = {
+                "name": randomName,
+                "amfId": "21",
+                "plmnId": {
+                    "mcc": "901",
+                    "mnc": "901"
+                },
+                "tac": "AC22",
+                "snssai": {
+                    "sst": 22,
+                    "sd": "AB0102"
+                },
+                "salience": 65235,
+                "behavior": {
+                    "grant": "ALLOWED",
+                    "accessType": "3GPP_ACCESS",
+                    "nsiProfiles": [
+                        {
+                            "name": "cem10",
+                            "salience": 65235
+                        }
+                    ]
+                }
+            }
+
+            const argsSet = [
+                '--dest', 'localhost:8102'
+                , '-r', 'false'
+                , '--loglevel', 'debug'
+                // , '-q', true
+                , '--data', `'${JSON.stringify(newData)}'`
+                , 'set', 'nssrules'
+            ];
+
+            const argsDelete = [
+                '--dest', 'localhost:8102'
+                , '-r', 'false'
+                , '--loglevel', 'debug'
+                // , '-q', true
+                , '--data', `'${randomName}'`
+                , 'delete', 'nssrules'
+            ];
+
+            try {
+                // WHEN
+
+                // kayıt ekliyoruz
+                let response = await cmd.execute(nfJsFilePath, argsSet);
+                let responseBody = response.trim().split(EOL).pop()
+                log(">>>> responseBody: ", responseBody);
+                expect(responseBody.includes('":status":201')).to.be.true
+
+                // Siliyoruz
+                response = await cmd.execute(nfJsFilePath, argsDelete);
+                responseBody = response.trim().split(EOL).pop()
+                log(">>>> responseBody: ", responseBody);
+
+                // THEN
+                expect(responseBody.includes('":status":204')).to.be.true
+            } catch (error) {
+                loge(">>>>>>>>>> error: ", error)
+                throw (error)
+            }
+        });
+
+        it('configurednssai eklenir sonuçta 201 durum kodu alınır', async function () {
+            // GIVEN
+            var randomAmfId = "cem" + Math.floor(Math.random() * 1000)
+            const newData = {
+                "amfId": randomAmfId,
+                "plmnId": {
+                    "mcc": "901",
+                    "mnc": "901"
+                },
+                "tac": "AC3322",
+                "snssai": [{
+                    "sst": 22,
+                    "sd": "AB0102"
+                }],
+                "salience": 65235
+            }
+
+            const argsSet = [
+                '--dest', 'localhost:8102'
+                , '-r', 'false'
+                , '--loglevel', 'debug'
+                // , '-q', true
+                , '--data', `'${JSON.stringify(newData)}'`
+                , 'set', 'configurednssai'
+            ];
+
+            try {
+                // WHEN
+
+                // kayıt ekliyoruz
+                let response = await cmd.execute(nfJsFilePath, argsSet);
+                let responseBody = response.trim().split(EOL).pop()
+                log(">>>> responseBody: ", responseBody);
+
+                // THEN
+                expect(response.includes('":status":201')).to.be.true
+                expect(JSON.parse(responseBody)).to.eql(newData)
+            } catch (error) {
+                loge(">>>>>>>>>> error: ", error)
+                throw (error)
+            }
+        });
+
+        it.skip('configurednssai eklenir sonuçta 204 durum kodu alınır', async function () {
+            // GIVEN
+            var randomAmfId = "cem" + Math.floor(Math.random() * 1000)
+            const newData = {
+                "amfId": randomAmfId,
+                "plmnId": {
+                    "mcc": "901",
+                    "mnc": "901"
+                },
+                "tac": "AC3322",
+                "snssai": [{
+                    "sst": 22,
+                    "sd": "AB0102"
+                }],
+                "salience": 65235
+            }
+
+            const argsSet = [
+                '--dest', 'localhost:8102'
+                , '-r', 'false'
+                , '--loglevel', 'nolog'
+                // , '-q', true
+                , '--data', `'${JSON.stringify(newData)}'`
+                , 'set', 'configurednssai'
+            ];
+
+            const argsDelete = [
+                '--dest', 'localhost:8102'
+                , '-r', 'false'
+                , '--loglevel', 'debug'
+                , '-p', true
+                , '--data', `'${randomAmfId}'`
+                , 'delete', 'configurednssai'
+            ];
+
+            try {
+                // WHEN
+
+                // kayıt ekliyoruz
+                let response = await cmd.execute(nfJsFilePath, argsSet);
+                let responseBody = response.trim().split(EOL).pop()
+                log(">>>> responseBody: ", responseBody);
+                expect(JSON.parse(responseBody)).to.eql(newData)
+
+                // Siliyoruz
+                response = await cmd.execute(nfJsFilePath, argsDelete);
                 log(">>>> response: ", response);
 
                 // THEN
-                // Çıktı dosya oluşturulmuş olmalı
-                expect(fs.existsSync(outputFilePath))
-
-                var fileContent = fs.readFileSync(outputFilePath, 'utf-8')
-                log(">>>> fileContent: ", fileContent);
-
-                expect(fileContent.startsWith('{"allowedNfDomains":')).to.be.true
-
-                var actualResponseObject = JSON.parse(fileContent.trim())
-                expect(actualResponseObject).to.have.all.keys(Object.keys(expectedObject));
+                expect(response.includes('":status":204')).to.be.true
             } catch (error) {
                 loge(">>>>>>>>>> error: ", error)
                 throw (error)

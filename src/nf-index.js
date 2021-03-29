@@ -13,7 +13,7 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _mainCommands) {
         },
         httpModule: {
             get: get
-            , delete: Delete
+            , Delete: Delete
             , put: put
             , post: post
             , patch: patch
@@ -146,11 +146,11 @@ exports.cli = function cli(_scriptName, _urlParam1, _paths, _mainCommands) {
                     throw new Error(`${entity} Adlı varlık elemanı için veri girmeye uygun metot yok!`);
                 }
 
-                log.appDebug(`3. commandHandle > mainCommand: %s > argv: %o > cert: %o`, mainCommand, argv, cert);
-                
-                if (['set', 'modify'].includes(mainCommand)) {
+                log.appDebug(`3. commandHandle > mainCommand: %s > httpMethodName: %s > argv: %o > cert: %o`, mainCommand, httpMethodName, argv, cert);
+
+                if (['set', 'modify', 'delete'].includes(mainCommand)) {
                     data = argv.data ? argv.data : await yargsModule.readData(argv)
-                    log.appDebug(`4. commandHandle > httpMethodName: %s > data: %o`,httpMethodName, data);
+                    log.appDebug(`4. commandHandle > httpMethodName: %s > data: %o`, httpMethodName, data);
                 }
 
                 result = await yargsModule.httpModule[httpMethodName](argv.dest, _urlParam1, argv.entity, data, cert);

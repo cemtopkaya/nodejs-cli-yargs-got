@@ -9,7 +9,7 @@ function createProcess(processPath, args = [], env = null) {
   return spawn('node', args, {
     env: Object.assign(
       {
-        NODE_ENV: 'test'
+        NODE_ENV: 'dev'
       },
       env
     )
