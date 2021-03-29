@@ -17,7 +17,7 @@ var argsMaster = [
     , '--loglevel="info"'
 ];
 
-describe('NRF', function () {
+describe.only('NRF', function () {
 
     const nfJsFilePath = './src/nrf.js'
     const outputFilePath = './cikti.txt'
@@ -88,7 +88,7 @@ describe('NRF', function () {
             }
         });
 
-        it('-r=false ile hatalı sunucu sertifikası kabul edildiğinde NBI isteği sonuçlanır', async function () {
+        it.skip('-r=false ile hatalı sunucu sertifikası kabul edildiğinde NBI isteği sonuçlanır', async function () {
             // GIVEN
             var args = [
                 ...(argsMaster.filter(a => !(a.startsWith('-r=') || a.startsWith('--loglevel'))))
