@@ -1,1 +1,1 @@
-[]
+{"AlarmServiceName":"nnrf-nfm","NFDiscoveryService":{"TDiscoveryValidityPeriod":3600000},"NFManagementService":{"Heartbeat":{"HeartbeatFailureCount":3,"THeartbeatPeriod":30000},"TSubscriberValidityPeriod":3600000,"TSubscribersCleanupPeriod":1800000},"NumberofIOServiceThreads":6}

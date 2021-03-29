@@ -4,9 +4,22 @@ const { log, loge } = require('./mocha-setup').logFunctions;
 const { EOL } = require('os');
 const fs = require('fs');
 
-describe('NSSF', function () {
 
-    const nfJsFilePath = './src/nssf.js'
+var argsMaster = [
+    // mutual authentication için public ve private sertifika veriyoruz
+    '--cert="./certificates/client-crt.pem"'
+    , '--key="./certificates/client-key.pem"'
+
+    , '--dest="localhost:8009"'
+    , '-r=false'
+    , '-p=true'
+    , '-q=true'
+    , '--loglevel="info"'
+];
+
+describe('NRF', function () {
+
+    const nfJsFilePath = './src/nrf.js'
     const outputFilePath = './cikti.txt'
 
     describe('Eksik parametre uyarılarında', function () {
@@ -15,7 +28,7 @@ describe('NSSF', function () {
             // GIVEN
             var args = [
                 'get', 'db'
-                //   '--dest', 'localhost:8103'
+                //   '--dest', 'localhost:8009'
                 // , '-r', 'false'
                 // , '--loglevel=nolog'
                 // , '-o', outputFilePath
@@ -35,10 +48,11 @@ describe('NSSF', function () {
         it('-o ile çıktı dosyasının yolu noksan bırakılamaz hatası verir', async function () {
             // GIVEN
             var args = [
-                'get', 'db'
-                // , '--dest', 'localhost:8103'
+                ...(argsMaster.filter(a => !(a.startsWith('-r=') || a.startsWith('--loglevel'))))
+                , 'get', 'db'
+                // , '--dest', 'localhost:8009'
                 // , '-r', 'false'
-                // , '--loglevel=nolog'
+                , '--loglevel=nolog'
                 , '-o' //, outputFilePath
                 // , '-q', true
             ];
@@ -56,10 +70,10 @@ describe('NSSF', function () {
         it('-r ile hatalı sunucu sertifikası reddedildiğinde NBI isteği hata verir', async function () {
             // GIVEN
             var args = [
-                'get', 'db'
-                , '--dest', 'localhost:8103'
-                , '-r', true
-                // , '--loglevel=nolog'
+                ...(argsMaster.filter(a => !(a.startsWith('-r=') || a.startsWith('--loglevel'))))
+                , '-r=true'
+                , 'get', 'db'
+                , '--loglevel=nolog'
                 // , '-o' , outputFilePath
                 // , '-q', true
             ];
@@ -77,12 +91,11 @@ describe('NSSF', function () {
         it('-r=false ile hatalı sunucu sertifikası kabul edildiğinde NBI isteği sonuçlanır', async function () {
             // GIVEN
             var args = [
-                'get', 'db'
-                , '--dest', 'localhost:8103'
-                , '-r', false
-                // , '--loglevel=nolog'
+                ...(argsMaster.filter(a => !(a.startsWith('-r=') || a.startsWith('--loglevel'))))
+                , '-r=false'
+                , '--loglevel=nolog'
+                , 'get', 'db'
                 // , '-o' , outputFilePath
-                // , '-q', true
             ];
             const expectedMessagePart = '{"ConnectionPoolSize":'
 
@@ -104,7 +117,7 @@ describe('NSSF', function () {
             // GIVEN
             var args = [
                 'get', 'db'
-                , '--dest', 'localhost:8103'
+                , '--dest', 'localhost:8009'
                 , '-r', true
                 , '--cacert', './test/nssf_localhost1.crt'
                 // , '--loglevel=nolog'
@@ -137,12 +150,12 @@ describe('NSSF', function () {
             // GIVEN
             var args = [
                 'get', 'db'
-                , '--dest', 'localhost:8103'
+                , '--dest', 'localhost:8009'
                 , '-r', true
-                , '--cacert', './test/nssf_localhost.crt'
-                // , '--loglevel=nolog'
+                , '--cacert', './test/nrf_localhost.crt'
+                , '--loglevel=debug'
                 // , '-o' , outputFilePath
-                // , '-q', true
+                , '-p', true
             ];
 
             try {
@@ -165,19 +178,15 @@ describe('NSSF', function () {
             }
         })
 
-
         it('nfprofile\'nin Bilgileri çekilir', async function () {
             // GIVEN
             var args = [
-                '--dest', 'localhost:8103'
-                , '-r', 'false'
+                ...(argsMaster.filter(a => !(a.startsWith('--loglevel'))))
                 , '--loglevel=nolog'
                 , '-o', outputFilePath
-                , '-q', true
                 , 'get', 'nfprofile'
             ];
-            const expectedObject = { "allowedNfDomains": [], "allowedNfTypes": ["NSSF", "AMF"], "allowedNssais": [{ "sd": "", "sst": 1 }], "allowedPlmns": [], "amfInfo": { "amfRegionId": "", "amfSetId": "", "backupInfoAmfFailure": [], "backupInfoAmfRemoval": [], "guamiList": [], "n2InterfaceAmfInfo": { "amfName": "", "ipv4EndpointAddress": [], "ipv6EndpointAddress": [] }, "taiList": [], "taiRangeList": [] }, "ausfInfo": { "groupId": "", "routingIndicators": [], "supiRanges": [] }, "bsfInfo": { "dnnList": [], "ipDomainList": [], "ipv4AddressRanges": [], "ipv6PrefixRanges": [] }, "capacity": 0, "chfInfo": { "gpsiRangeList": [], "plmnRangeList": [], "supiRangeList": [] }, "customInfo": null, "defaultNotificationSubscriptions": [], "fqdn": "", "heartBeatTimer": 3, "interPlmnFqdn": "", "ipv4Addresses": ["10.10.23.8"], "ipv6Addresses": [], "load": 0, "locality": "", "nfInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "nfProfileChangesInd": false, "nfProfileChangesSupportInd": false, "nfServicePersistence": false, "nfServices": [{ "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8100, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "serviceName": "nnssf-nsselection", "supportedFeatures": "", "versions": [{ "apiFullVersion": "v1", "apiVersionInUri": "/nnssf-nsselection/v1", "expiry": "" }] }, { "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8101, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "serviceName": "nnssf-nssaiavailability", "supportedFeatures": "", "versions": [{ "apiFullVersion": "", "apiVersionInUri": "/nnssf-nssaiavailability/v1", "expiry": "" }] }], "nfStatus": "REGISTERED", "nfType": "NSSF", "nsiList": [], "pcfInfo": { "dnnList": [], "rxDiamHost": "", "rxDiamRealm": "", "supiRanges": [] }, "perPlmnSnssaiList": [], "plmnList": [], "priority": 0, "recoveryTime": "", "sNssais": [{ "sd": "", "sst": 1 }], "smfInfo": { "accessType": [], "pgwFqdn": "", "sNssaiSmfInfoList": [], "taiList": [], "taiRangeList": [] }, "udmInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "routingIndicators": [], "supiRanges": [] }, "udrInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "supiRanges": [], "supportedDataSets": [] }, "upfInfo": { "interfaceUpfInfoList": [], "iwkEpsInd": false, "pduSessionTypes": [], "sNssaiUpfInfoList": [], "smfServingArea": [] } }
-
+            const expectedObject = { "allowedNfDomains": [], "allowedNfTypes": ["NRF"], "allowedNssais": [{ "sd": "", "sst": 1 }], "allowedPlmns": [], "amfInfo": { "amfRegionId": "", "amfSetId": "", "backupInfoAmfFailure": [], "backupInfoAmfRemoval": [], "guamiList": [], "n2InterfaceAmfInfo": { "amfName": "", "ipv4EndpointAddress": [], "ipv6EndpointAddress": [] }, "taiList": [], "taiRangeList": [] }, "ausfInfo": { "groupId": "", "routingIndicators": [], "supiRanges": [] }, "bsfInfo": { "dnnList": [], "ipDomainList": [], "ipv4AddressRanges": [], "ipv6PrefixRanges": [] }, "capacity": 0, "chfInfo": { "gpsiRangeList": [], "plmnRangeList": [], "supiRangeList": [] }, "customInfo": null, "defaultNotificationSubscriptions": [], "fqdn": "", "heartBeatTimer": 3, "interPlmnFqdn": "", "ipv4Addresses": ["10.10.23.8"], "ipv6Addresses": [], "load": 0, "locality": "", "nfInstanceId": "d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece", "nfProfileChangesInd": false, "nfProfileChangesSupportInd": false, "nfServicePersistence": false, "nfServices": [{ "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "fe80::a00:27ff:feae:3fc8%eps0s8", "port": 8001, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece", "serviceName": "nnrf-nfm", "supportedFeatures": "", "versions": [{ "apiFullVersion": "v1", "apiVersionInUri": "/nnrf-nfm/v1", "expiry": "" }] }, { "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8006, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece", "serviceName": "nnrf-disc", "supportedFeatures": "", "versions": [{ "apiFullVersion": "v1", "apiVersionInUri": "/nnrf-disc/v1", "expiry": "" }] }], "nfStatus": "REGISTERED", "nfType": "NRF", "nrfInfo": { "servedAmfInfo": {}, "servedAusfInfo": {}, "servedBsfInfo": {}, "servedChfInfo": {}, "servedPcfInfo": {}, "servedSmfInfo": {}, "servedUdmInfo": {}, "servedUdrInfo": {}, "servedUpfInfo": {} }, "nsiList": [], "pcfInfo": { "dnnList": [], "rxDiamHost": "", "rxDiamRealm": "", "supiRanges": [] }, "perPlmnSnssaiList": [], "plmnList": [{ "mcc": "001", "mnc": "001" }, { "mcc": "002", "mnc": "002" }], "priority": 0, "recoveryTime": "", "sNssais": [{ "sd": "", "sst": 1 }], "smfInfo": { "accessType": [], "pgwFqdn": "", "sNssaiSmfInfoList": [], "taiList": [], "taiRangeList": [] }, "udmInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "routingIndicators": [], "supiRanges": [] }, "udrInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "supiRanges": [], "supportedDataSets": [] }, "upfInfo": { "interfaceUpfInfoList": [], "iwkEpsInd": false, "pduSessionTypes": [], "sNssaiUpfInfoList": [], "smfServingArea": [] } }
 
             try {
                 // WHEN
@@ -204,11 +213,9 @@ describe('NSSF', function () {
         it('general\'nin Bilgileri çekilir', async function () {
             // GIVEN
             var args = [
-                '--dest', 'localhost:8103'
-                , '-r', 'false'
+                ...(argsMaster.filter(a => !(a.startsWith('--loglevel'))))
                 , '--loglevel=nolog'
                 , '-o', outputFilePath
-                , '-q', true
                 , 'get', 'general'
             ];
             const expectedObject = { "ClientCount": 4, "ClientTimeout": 3000, "HomePlmnId": { "mcc": "001", "mnc": "001" }, "NumberofServingServerThreads": 4 }
@@ -239,14 +246,12 @@ describe('NSSF', function () {
         it('security\'nin Bilgileri çekilir', async function () {
             // GIVEN
             var args = [
-                '--dest', 'localhost:8103'
-                , '-r', 'false'
+                ...(argsMaster.filter(a => !(a.startsWith('-r=') || a.startsWith('--loglevel'))))
                 , '--loglevel=nolog'
                 , '-o', outputFilePath
-                , '-q', true
                 , 'get', 'security'
             ];
-            const expectedObject = { "JWTAuthenticate": true, "MutualAuthenticate": false, "OAuth2": { "PrivateKey": "certificate/jwt.key", "PublicKey": "certificate/jwt.pub" }, "TLS": { "PrivateKey": "certificate/client.key" }, "TLSSecure": true }
+            const expectedObject = { "JWTAuthenticate": false, "MutualAuthenticate": true, "OAuth2": { "PrivateKey": "certificate/jwt.key", "PublicKey": "certificate/jwt.pub" }, "TLS": { "PrivateKey": "certificate/localhost.key" } }
             const fileContentStartsWith = '{"JWTAuthenticate":'
 
             try {
@@ -274,14 +279,12 @@ describe('NSSF', function () {
         it('logging\'nin Bilgileri çekilir', async function () {
             // GIVEN
             var args = [
-                '--dest', 'localhost:8103'
-                , '-r', 'false'
+                ...(argsMaster.filter(a => !(a.startsWith('--loglevel'))))
                 , '--loglevel=nolog'
                 , '-o', outputFilePath
-                , '-q', true
                 , 'get', 'logging'
             ];
-            const expectedObject = { "Directory": "/var/log/cinar/nssf/", "DisplayLog": true, "FileName": "NSSF", "LogLevel": "DEBUG" }
+            const expectedObject = { "Directory": "/var/log/cinar/nrf/", "DisplayLog": true, "FileName": "NRF", "LogLevel": "DEBUG" }
             const fileContentStartsWith = '{"Directory":'
 
             try {
@@ -309,14 +312,12 @@ describe('NSSF', function () {
         it('nrf\'nin Bilgileri çekilir', async function () {
             // GIVEN
             var args = [
-                '--dest', 'localhost:8103'
-                , '-r', 'false'
+                ...(argsMaster.filter(a => !(a.startsWith('--loglevel'))))
                 , '--loglevel=nolog'
                 , '-o', outputFilePath
-                , '-q', true
                 , 'get', 'nrf'
             ];
-            const expectedObject = [{ "ClientCount": 4, "ClientTimeout": 3000, "DiscServicePort": 8006, "IPAddress": "10.10.23.8", "NfmServicePort": 8001, "OAuth2ServicePort": 8007, "TAccessTokenPeriod": 10000, "TCheckPeriod": 60000, "TDiscoveryPeriod": 3000, "TRetryPeriod": 3000 }]
+            const expectedObject = [{ "ClientCount": 4, "ClientTimeout": 3000, "DiscServicePort": 8006, "IPAddress": "10.10.23.8", "NfmServicePort": 8001, "OAuth2ServicePort": 8007, "TAccessTokenPeriod": 10000, "TCheckPeriod": 60000, "TRetryPeriod": 3000 }]
             const fileContentStartsWith = '[{"ClientCount":'
 
             try {
@@ -344,31 +345,13 @@ describe('NSSF', function () {
         it('db\'nin Bilgileri çekilir', async function () {
             // GIVEN
             var args = [
-                '--dest', 'localhost:8103'
-                , '-r', 'false'
+                ...(argsMaster.filter(a => !(a.startsWith('--loglevel'))))
                 , '--loglevel=nolog'
                 , '-o', outputFilePath
                 , '-q', true
                 , 'get', 'db'
             ];
-            const expectedObject = {
-                "ConnectionPoolSize": 4,
-                "ConnectionRetryPeriod": 60000,
-                "ConnectionTimeout": 1000,
-                "DatabaseName": "cinarnssftest",
-                "DatabaseType": "MONGO",
-                "Password": "P5vKG6vE",
-                "Port": 27017,
-                "Server": "10.5.0.22",
-                "Tables": [
-                    "cinarnsicollection",
-                    "cinarnssrulescollection",
-                    "cinarconfigurednssaicollection",
-                    "cinaramfavailabilitycollection",
-                    "cinarnssfsubscinarcollection"
-                ],
-                "UserName": "cnrusr"
-            }
+            const expectedObject = { "ConnectionPoolSize": 4, "ConnectionRetryPeriod": 5000, "ConnectionTimeout": 1000, "DatabaseName": "cinarnrftest", "DatabaseType": "MONGO", "Password": "P5vKG6vE", "Port": 30558, "Server": "10.10.21.12", "Tables": ["cinarnfcollection", "cinarsubscollection", "cinarnfstatecollection"], "UserName": "cnrusr" }
 
 
             try {
@@ -394,18 +377,45 @@ describe('NSSF', function () {
             }
         });
 
-        it('nsiprofiles\'nin Bilgileri çekilir', async function () {
+        it('additional-services\'nin Bilgileri çekilir', async function () {
             // GIVEN
             var args = [
-                '--dest', 'localhost:8102'
-                , '-r', 'false'
+                ...(argsMaster.filter(a => !(a.startsWith('--loglevel'))))
                 , '--loglevel=nolog'
                 , '-o', outputFilePath
-                , '-q', true
-                , 'get', 'nsiprofiles'
+                , 'get', 'additional-services'
             ];
-            const expectedObject = []
-            const fileContentStartsWith = '[]'
+            const fileContentStartsWith = '[{"allowedNfDomains":'
+
+            try {
+                // WHEN
+                const response = await cmd.execute(nfJsFilePath, args);
+                log(">>>> response: ", response);
+
+                // THEN
+                // Çıktı dosya oluşturulmuş olmalı
+                expect(fs.existsSync(outputFilePath))
+
+                var fileContent = fs.readFileSync(outputFilePath, 'utf-8')
+                log(">>>> fileContent: ", fileContent);
+
+                expect(fileContent.startsWith(fileContentStartsWith)).to.be.true
+            } catch (error) {
+                loge(">>>>>>>>>> error: ", error)
+                throw (error)
+            }
+        });
+
+        it('service-settings\'nin Bilgileri çekilir', async function () {
+            // GIVEN
+            var args = [
+                ...(argsMaster.filter(a => !(a.startsWith('--loglevel'))))
+                , '--loglevel=nolog'
+                , '-o', outputFilePath
+                , 'get', 'service-settings'
+            ];
+            const expectedObject = { "AlarmServiceName": "nnrf-nfm", "NFDiscoveryService": { "TDiscoveryValidityPeriod": 3600000 }, "NFManagementService": { "Heartbeat": { "HeartbeatFailureCount": 3, "THeartbeatPeriod": 30000 }, "TSubscriberValidityPeriod": 3600000, "TSubscribersCleanupPeriod": 1800000 }, "NumberofIOServiceThreads": 6 }
+            const fileContentStartsWith = '{"AlarmServiceName"'
 
             try {
                 // WHEN
@@ -421,100 +431,26 @@ describe('NSSF', function () {
 
                 expect(fileContent.startsWith(fileContentStartsWith)).to.be.true
 
-                // var actualResponseObject = JSON.parse(fileContent.trim())
-                // expect(actualResponseObject).to.have.all.keys(Object.keys(expectedObject));
+                var actualResponseObject = JSON.parse(fileContent.trim())
+                expect(actualResponseObject).to.have.all.keys(Object.keys(expectedObject));
             } catch (error) {
                 loge(">>>>>>>>>> error: ", error)
                 throw (error)
             }
         });
-
-        it('nssrules\'nin Bilgileri çekilir', async function () {
-            // GIVEN
-            var args = [
-                '--dest', 'localhost:8102'
-                , '-r', 'false'
-                , '--loglevel=nolog'
-                , '-o', outputFilePath
-                , '-q', true
-                , 'get', 'nssrules'
-            ];
-            const expectedObject = []
-            const fileContentStartsWith = '[]'
-
-            try {
-                // WHEN
-                const response = await cmd.execute(nfJsFilePath, args);
-                log(">>>> response: ", response);
-
-                // THEN
-                // Çıktı dosya oluşturulmuş olmalı
-                expect(fs.existsSync(outputFilePath))
-
-                var fileContent = fs.readFileSync(outputFilePath, 'utf-8')
-                log(">>>> fileContent: ", fileContent);
-
-                expect(fileContent.startsWith(fileContentStartsWith)).to.be.true
-
-                // var actualResponseObject = JSON.parse(fileContent.trim())
-                // expect(actualResponseObject).to.have.all.keys(Object.keys(expectedObject));
-            } catch (error) {
-                loge(">>>>>>>>>> error: ", error)
-                throw (error)
-            }
-        });
-
-        it('configurednssai\'nin Bilgileri çekilir', async function () {
-            // GIVEN
-            var args = [
-                '--dest', 'localhost:8102'
-                , '-r', 'false'
-                , '--loglevel=nolog'
-                , '-o', outputFilePath
-                , '-q', true
-                , 'get', 'configurednssai'
-            ];
-            const expectedObject = []
-            const fileContentStartsWith = '[]'
-
-            try {
-                // WHEN
-                const response = await cmd.execute(nfJsFilePath, args);
-                log(">>>> response: ", response);
-
-                // THEN
-                // Çıktı dosya oluşturulmuş olmalı
-                expect(fs.existsSync(outputFilePath))
-
-                var fileContent = fs.readFileSync(outputFilePath, 'utf-8')
-                log(">>>> fileContent: ", fileContent);
-
-                expect(fileContent.startsWith(fileContentStartsWith)).to.be.true
-
-                // var actualResponseObject = JSON.parse(fileContent.trim())
-                // expect(actualResponseObject).to.have.all.keys(Object.keys(expectedObject));
-            } catch (error) {
-                loge(">>>>>>>>>> error: ", error)
-                throw (error)
-            }
-        });
-
     });
 
     describe('SET ve DELETE ile', function () {
         it('nfprofile "allowedNfTypes" Dizisine kabul edilmeyecek bilgi gönderilir ve 400 hata kodu döner', async function () {
             // GIVEN
-            var newData = { "allowedNfDomains": [], "allowedNfTypes": ["CEM", "NSSF", "AMF"], "allowedNssais": [{ "sd": "", "sst": 1 }], "allowedPlmns": [], "amfInfo": { "amfRegionId": "", "amfSetId": "", "backupInfoAmfFailure": [], "backupInfoAmfRemoval": [], "guamiList": [], "n2InterfaceAmfInfo": { "amfName": "", "ipv4EndpointAddress": [], "ipv6EndpointAddress": [] }, "taiList": [], "taiRangeList": [] }, "ausfInfo": { "groupId": "", "routingIndicators": [], "supiRanges": [] }, "bsfInfo": { "dnnList": [], "ipDomainList": [], "ipv4AddressRanges": [], "ipv6PrefixRanges": [] }, "capacity": 0, "chfInfo": { "gpsiRangeList": [], "plmnRangeList": [], "supiRangeList": [] }, "customInfo": null, "defaultNotificationSubscriptions": [], "fqdn": "", "heartBeatTimer": 3, "interPlmnFqdn": "", "ipv4Addresses": ["10.10.23.8"], "ipv6Addresses": [], "load": 0, "locality": "", "nfInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "nfProfileChangesInd": false, "nfProfileChangesSupportInd": false, "nfServicePersistence": false, "nfServices": [{ "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8100, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "serviceName": "nnssf-nsselection", "supportedFeatures": "", "versions": [{ "apiFullVersion": "v1", "apiVersionInUri": "/nnssf-nsselection/v1", "expiry": "" }] }, { "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8101, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "serviceName": "nnssf-nssaiavailability", "supportedFeatures": "", "versions": [{ "apiFullVersion": "", "apiVersionInUri": "/nnssf-nssaiavailability/v1", "expiry": "" }] }], "nfStatus": "REGISTERED", "nfType": "NSSF", "nsiList": [], "pcfInfo": { "dnnList": [], "rxDiamHost": "", "rxDiamRealm": "", "supiRanges": [] }, "perPlmnSnssaiList": [], "plmnList": [], "priority": 0, "recoveryTime": "", "sNssais": [{ "sd": "", "sst": 1 }], "smfInfo": { "accessType": [], "pgwFqdn": "", "sNssaiSmfInfoList": [], "taiList": [], "taiRangeList": [] }, "udmInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "routingIndicators": [], "supiRanges": [] }, "udrInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "supiRanges": [], "supportedDataSets": [] }, "upfInfo": { "interfaceUpfInfoList": [], "iwkEpsInd": false, "pduSessionTypes": [], "sNssaiUpfInfoList": [], "smfServingArea": [] } }
+            var newData = {"allowedNfDomains":[],"allowedNfTypes":["CEM","NRF"],"allowedNssais":[{"sd":"","sst":1}],"allowedPlmns":[],"amfInfo":{"amfRegionId":"","amfSetId":"","backupInfoAmfFailure":[],"backupInfoAmfRemoval":[],"guamiList":[],"n2InterfaceAmfInfo":{"amfName":"","ipv4EndpointAddress":[],"ipv6EndpointAddress":[]},"taiList":[],"taiRangeList":[]},"ausfInfo":{"groupId":"","routingIndicators":[],"supiRanges":[]},"bsfInfo":{"dnnList":[],"ipDomainList":[],"ipv4AddressRanges":[],"ipv6PrefixRanges":[]},"capacity":0,"chfInfo":{"gpsiRangeList":[],"plmnRangeList":[],"supiRangeList":[]},"customInfo":null,"defaultNotificationSubscriptions":[],"fqdn":"","heartBeatTimer":3,"interPlmnFqdn":"","ipv4Addresses":["10.10.23.8"],"ipv6Addresses":[],"load":0,"locality":"","nfInstanceId":"d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece","nfProfileChangesInd":false,"nfProfileChangesSupportInd":false,"nfServicePersistence":false,"nfServices":[{"allowedNfDomains":[],"allowedNfTypes":[],"allowedNssais":[],"allowedPlmns":[],"apiPrefix":"","capacity":0,"chfServiceInfo":{"primaryChfServiceInstance":"","secondaryChfServiceInstance":""},"defaultNotificationSubscriptions":[],"fqdn":"","interPlmnFqdn":"","ipEndPoints":[{"ipv4Address":"10.10.23.8","ipv6Address":"fe80::a00:27ff:feae:3fc8%eps0s8","port":8001,"transport":""}],"load":0,"nfServiceStatus":"REGISTERED","priority":0,"recoveryTime":"","scheme":"http","serviceInstanceId":"d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece","serviceName":"nnrf-nfm","supportedFeatures":"","versions":[{"apiFullVersion":"v1","apiVersionInUri":"/nnrf-nfm/v1","expiry":""}]},{"allowedNfDomains":[],"allowedNfTypes":[],"allowedNssais":[],"allowedPlmns":[],"apiPrefix":"","capacity":0,"chfServiceInfo":{"primaryChfServiceInstance":"","secondaryChfServiceInstance":""},"defaultNotificationSubscriptions":[],"fqdn":"","interPlmnFqdn":"","ipEndPoints":[{"ipv4Address":"10.10.23.8","ipv6Address":"","port":8006,"transport":""}],"load":0,"nfServiceStatus":"REGISTERED","priority":0,"recoveryTime":"","scheme":"http","serviceInstanceId":"d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece","serviceName":"nnrf-disc","supportedFeatures":"","versions":[{"apiFullVersion":"v1","apiVersionInUri":"/nnrf-disc/v1","expiry":""}]}],"nfStatus":"REGISTERED","nfType":"NRF","nrfInfo":{"servedAmfInfo":{},"servedAusfInfo":{},"servedBsfInfo":{},"servedChfInfo":{},"servedPcfInfo":{},"servedSmfInfo":{},"servedUdmInfo":{},"servedUdrInfo":{},"servedUpfInfo":{}},"nsiList":[],"pcfInfo":{"dnnList":[],"rxDiamHost":"","rxDiamRealm":"","supiRanges":[]},"perPlmnSnssaiList":[],"plmnList":[{"mcc":"001","mnc":"001"},{"mcc":"002","mnc":"002"}],"priority":0,"recoveryTime":"","sNssais":[{"sd":"","sst":1}],"smfInfo":{"accessType":[],"pgwFqdn":"","sNssaiSmfInfoList":[],"taiList":[],"taiRangeList":[]},"udmInfo":{"externalGroupIdentifiersRanges":[],"gpsiRanges":[],"groupId":"","routingIndicators":[],"supiRanges":[]},"udrInfo":{"externalGroupIdentifiersRanges":[],"gpsiRanges":[],"groupId":"","supiRanges":[],"supportedDataSets":[]},"upfInfo":{"interfaceUpfInfoList":[],"iwkEpsInd":false,"pduSessionTypes":[],"sNssaiUpfInfoList":[],"smfServingArea":[]}}
             var args = [
-                '--dest', 'localhost:8103'
-                , '-r', 'false'
-                // , '--loglevel','info'
-                , '-q', true
-                , '--data', `'${JSON.stringify(newData)}'`
+                ...(argsMaster.filter(a => !(a.startsWith('--loglevel') || a.startsWith('-q'))))
+                , '--loglevel=info'
+                , `--data='${JSON.stringify(newData)}'`
                 , 'set', 'nfprofile'
             ];
             const expectedMessagePart = 'HTTPError: Response code 400 (Bad Request)'
-
 
             try {
                 // WHEN
@@ -528,15 +464,13 @@ describe('NSSF', function () {
             }
         });
 
-        it('nfprofile "allowedNfDomains" Dizisine kabul bir metin elemanı eklenir ve gönderilir, sonuç 200 koduyla başarılı döner', async function () {
+        it.only('nfprofile "allowedNfDomains" Dizisine kabul bir metin elemanı eklenir ve gönderilir, sonuç 200 koduyla başarılı döner', async function () {
             // GIVEN
-            var newData = { "allowedNfDomains": ["cem"], "allowedNfTypes": ["NSSF", "AMF"], "allowedNssais": [{ "sd": "", "sst": 1 }], "allowedPlmns": [], "amfInfo": { "amfRegionId": "", "amfSetId": "", "backupInfoAmfFailure": [], "backupInfoAmfRemoval": [], "guamiList": [], "n2InterfaceAmfInfo": { "amfName": "", "ipv4EndpointAddress": [], "ipv6EndpointAddress": [] }, "taiList": [], "taiRangeList": [] }, "ausfInfo": { "groupId": "", "routingIndicators": [], "supiRanges": [] }, "bsfInfo": { "dnnList": [], "ipDomainList": [], "ipv4AddressRanges": [], "ipv6PrefixRanges": [] }, "capacity": 0, "chfInfo": { "gpsiRangeList": [], "plmnRangeList": [], "supiRangeList": [] }, "customInfo": null, "defaultNotificationSubscriptions": [], "fqdn": "", "heartBeatTimer": 3, "interPlmnFqdn": "", "ipv4Addresses": ["10.10.23.8"], "ipv6Addresses": [], "load": 0, "locality": "", "nfInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "nfProfileChangesInd": false, "nfProfileChangesSupportInd": false, "nfServicePersistence": false, "nfServices": [{ "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8100, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "serviceName": "nnssf-nsselection", "supportedFeatures": "", "versions": [{ "apiFullVersion": "v1", "apiVersionInUri": "/nnssf-nsselection/v1", "expiry": "" }] }, { "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8101, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "serviceName": "nnssf-nssaiavailability", "supportedFeatures": "", "versions": [{ "apiFullVersion": "", "apiVersionInUri": "/nnssf-nssaiavailability/v1", "expiry": "" }] }], "nfStatus": "REGISTERED", "nfType": "NSSF", "nsiList": [], "pcfInfo": { "dnnList": [], "rxDiamHost": "", "rxDiamRealm": "", "supiRanges": [] }, "perPlmnSnssaiList": [], "plmnList": [], "priority": 0, "recoveryTime": "", "sNssais": [{ "sd": "", "sst": 1 }], "smfInfo": { "accessType": [], "pgwFqdn": "", "sNssaiSmfInfoList": [], "taiList": [], "taiRangeList": [] }, "udmInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "routingIndicators": [], "supiRanges": [] }, "udrInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "supiRanges": [], "supportedDataSets": [] }, "upfInfo": { "interfaceUpfInfoList": [], "iwkEpsInd": false, "pduSessionTypes": [], "sNssaiUpfInfoList": [], "smfServingArea": [] } }
+            var newData = {"allowedNfDomains":["CEM"],"allowedNfTypes":["CEM","NRF"],"allowedNssais":[{"sd":"","sst":1}],"allowedPlmns":[],"amfInfo":{"amfRegionId":"","amfSetId":"","backupInfoAmfFailure":[],"backupInfoAmfRemoval":[],"guamiList":[],"n2InterfaceAmfInfo":{"amfName":"","ipv4EndpointAddress":[],"ipv6EndpointAddress":[]},"taiList":[],"taiRangeList":[]},"ausfInfo":{"groupId":"","routingIndicators":[],"supiRanges":[]},"bsfInfo":{"dnnList":[],"ipDomainList":[],"ipv4AddressRanges":[],"ipv6PrefixRanges":[]},"capacity":0,"chfInfo":{"gpsiRangeList":[],"plmnRangeList":[],"supiRangeList":[]},"customInfo":null,"defaultNotificationSubscriptions":[],"fqdn":"","heartBeatTimer":3,"interPlmnFqdn":"","ipv4Addresses":["10.10.23.8"],"ipv6Addresses":[],"load":0,"locality":"","nfInstanceId":"d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece","nfProfileChangesInd":false,"nfProfileChangesSupportInd":false,"nfServicePersistence":false,"nfServices":[{"allowedNfDomains":[],"allowedNfTypes":[],"allowedNssais":[],"allowedPlmns":[],"apiPrefix":"","capacity":0,"chfServiceInfo":{"primaryChfServiceInstance":"","secondaryChfServiceInstance":""},"defaultNotificationSubscriptions":[],"fqdn":"","interPlmnFqdn":"","ipEndPoints":[{"ipv4Address":"10.10.23.8","ipv6Address":"fe80::a00:27ff:feae:3fc8%eps0s8","port":8001,"transport":""}],"load":0,"nfServiceStatus":"REGISTERED","priority":0,"recoveryTime":"","scheme":"http","serviceInstanceId":"d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece","serviceName":"nnrf-nfm","supportedFeatures":"","versions":[{"apiFullVersion":"v1","apiVersionInUri":"/nnrf-nfm/v1","expiry":""}]},{"allowedNfDomains":[],"allowedNfTypes":[],"allowedNssais":[],"allowedPlmns":[],"apiPrefix":"","capacity":0,"chfServiceInfo":{"primaryChfServiceInstance":"","secondaryChfServiceInstance":""},"defaultNotificationSubscriptions":[],"fqdn":"","interPlmnFqdn":"","ipEndPoints":[{"ipv4Address":"10.10.23.8","ipv6Address":"","port":8006,"transport":""}],"load":0,"nfServiceStatus":"REGISTERED","priority":0,"recoveryTime":"","scheme":"http","serviceInstanceId":"d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece","serviceName":"nnrf-disc","supportedFeatures":"","versions":[{"apiFullVersion":"v1","apiVersionInUri":"/nnrf-disc/v1","expiry":""}]}],"nfStatus":"REGISTERED","nfType":"NRF","nrfInfo":{"servedAmfInfo":{},"servedAusfInfo":{},"servedBsfInfo":{},"servedChfInfo":{},"servedPcfInfo":{},"servedSmfInfo":{},"servedUdmInfo":{},"servedUdrInfo":{},"servedUpfInfo":{}},"nsiList":[],"pcfInfo":{"dnnList":[],"rxDiamHost":"","rxDiamRealm":"","supiRanges":[]},"perPlmnSnssaiList":[],"plmnList":[{"mcc":"001","mnc":"001"},{"mcc":"002","mnc":"002"}],"priority":0,"recoveryTime":"","sNssais":[{"sd":"","sst":1}],"smfInfo":{"accessType":[],"pgwFqdn":"","sNssaiSmfInfoList":[],"taiList":[],"taiRangeList":[]},"udmInfo":{"externalGroupIdentifiersRanges":[],"gpsiRanges":[],"groupId":"","routingIndicators":[],"supiRanges":[]},"udrInfo":{"externalGroupIdentifiersRanges":[],"gpsiRanges":[],"groupId":"","supiRanges":[],"supportedDataSets":[]},"upfInfo":{"interfaceUpfInfoList":[],"iwkEpsInd":false,"pduSessionTypes":[],"sNssaiUpfInfoList":[],"smfServingArea":[]}}
             var args = [
-                '--dest', 'localhost:8103'
-                , '-r', 'false'
-                , '--loglevel', 'debug'
-                // , '-q', true
-                , '--data', `'${JSON.stringify(newData)}'`
+                ...(argsMaster.filter(a => !(a.startsWith('--loglevel') || a.startsWith('-q'))))
+                , '--loglevel=debug'
+                , `--data='${JSON.stringify(newData)}'`
                 , 'set', 'nfprofile'
             ];
             const expectedMessagePart = '{"allowedNfDomains":["cenk"'
@@ -569,7 +503,7 @@ describe('NSSF', function () {
                 "NumberofServingServerThreads": 94
             }
             var args = [
-                '--dest', 'localhost:8103'
+                '--dest', 'localhost:8009'
                 , '-r', 'false'
                 , '--loglevel', 'debug'
                 // , '-q', true
@@ -611,7 +545,7 @@ describe('NSSF', function () {
             }
 
             var args = [
-                '--dest', 'localhost:8103'
+                '--dest', 'localhost:8009'
                 , '-r', 'false'
                 , '--loglevel', 'debug'
                 // , '-q', true
@@ -647,7 +581,7 @@ describe('NSSF', function () {
             }
 
             var args = [
-                '--dest', 'localhost:8103'
+                '--dest', 'localhost:8009'
                 , '-r', 'false'
                 , '--loglevel', 'debug'
                 // , '-q', true
@@ -691,7 +625,7 @@ describe('NSSF', function () {
             ]
 
             var args = [
-                '--dest', 'localhost:8103'
+                '--dest', 'localhost:8009'
                 , '-r', 'false'
                 , '--loglevel', 'debug'
                 // , '-q', true
@@ -739,7 +673,7 @@ describe('NSSF', function () {
             }
 
             var args = [
-                '--dest', 'localhost:8103'
+                '--dest', 'localhost:8009'
                 , '-r', 'false'
                 , '--loglevel', 'debug'
                 // , '-q', true
