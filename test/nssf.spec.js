@@ -539,7 +539,7 @@ describe('NSSF', function () {
                 , '--data', `'${JSON.stringify(newData)}'`
                 , 'set', 'nfprofile'
             ];
-            const expectedMessagePart = '{"allowedNfDomains":["cenk"'
+            const expectedMessagePart = '{"allowedNfDomains":["cem"'
 
 
             try {

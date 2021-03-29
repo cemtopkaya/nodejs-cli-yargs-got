@@ -10,16 +10,16 @@ var argsMaster = [
     '--cert="./certificates/client-crt.pem"'
     , '--key="./certificates/client-key.pem"'
 
-    , '--dest="localhost:8009"'
+    , '--dest="localhost:8204"'
     , '-r=false'
     , '-p=true'
     , '-q=true'
     , '--loglevel="info"'
 ];
 
-describe('NRF', function () {
+describe('NEF', function () {
 
-    const nfJsFilePath = './src/nrf.js'
+    const nfJsFilePath = './src/nef.js'
     const outputFilePath = './cikti.txt'
 
     describe('Eksik parametre uyarılarında', function () {
@@ -28,7 +28,7 @@ describe('NRF', function () {
             // GIVEN
             var args = [
                 'get', 'db'
-                //   '--dest', 'localhost:8009'
+                //   '--dest', 'localhost:8204'
                 // , '-r', 'false'
                 // , '--loglevel=nolog'
                 // , '-o', outputFilePath
@@ -50,7 +50,7 @@ describe('NRF', function () {
             var args = [
                 ...(argsMaster.filter(a => !(a.startsWith('-r=') || a.startsWith('--loglevel'))))
                 , 'get', 'db'
-                // , '--dest', 'localhost:8009'
+                // , '--dest', 'localhost:8204'
                 // , '-r', 'false'
                 , '--loglevel=nolog'
                 , '-o' //, outputFilePath
@@ -117,9 +117,9 @@ describe('NRF', function () {
             // GIVEN
             var args = [
                 'get', 'db'
-                , '--dest', 'localhost:8009'
+                , '--dest', 'localhost:8204'
                 , '-r', true
-                , '--cacert', './test/nrf_localhost1.crt'
+                , '--cacert', './test/nef_localhost1.crt'
                 // , '--loglevel=nolog'
                 // , '-o' , outputFilePath
                 // , '-q', true
@@ -150,9 +150,9 @@ describe('NRF', function () {
             // GIVEN
             var args = [
                 'get', 'db'
-                , '--dest', 'localhost:8009'
+                , '--dest', 'localhost:8204'
                 , '-r', true
-                , '--cacert', './test/nrf_localhost.crt'
+                , '--cacert', './test/nef_localhost.crt'
                 , '--loglevel=debug'
                 // , '-o' , outputFilePath
                 , '-p', true
@@ -186,7 +186,7 @@ describe('NRF', function () {
                 , '-o', outputFilePath
                 , 'get', 'nfprofile'
             ];
-            const expectedObject = { "allowedNfDomains": [], "allowedNfTypes": ["NRF"], "allowedNssais": [{ "sd": "", "sst": 1 }], "allowedPlmns": [], "amfInfo": { "amfRegionId": "", "amfSetId": "", "backupInfoAmfFailure": [], "backupInfoAmfRemoval": [], "guamiList": [], "n2InterfaceAmfInfo": { "amfName": "", "ipv4EndpointAddress": [], "ipv6EndpointAddress": [] }, "taiList": [], "taiRangeList": [] }, "ausfInfo": { "groupId": "", "routingIndicators": [], "supiRanges": [] }, "bsfInfo": { "dnnList": [], "ipDomainList": [], "ipv4AddressRanges": [], "ipv6PrefixRanges": [] }, "capacity": 0, "chfInfo": { "gpsiRangeList": [], "plmnRangeList": [], "supiRangeList": [] }, "customInfo": null, "defaultNotificationSubscriptions": [], "fqdn": "", "heartBeatTimer": 3, "interPlmnFqdn": "", "ipv4Addresses": ["10.10.23.8"], "ipv6Addresses": [], "load": 0, "locality": "", "nfInstanceId": "d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece", "nfProfileChangesInd": false, "nfProfileChangesSupportInd": false, "nfServicePersistence": false, "nfServices": [{ "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "fe80::a00:27ff:feae:3fc8%eps0s8", "port": 8001, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece", "serviceName": "nnrf-nfm", "supportedFeatures": "", "versions": [{ "apiFullVersion": "v1", "apiVersionInUri": "/nnrf-nfm/v1", "expiry": "" }] }, { "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8006, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece", "serviceName": "nnrf-disc", "supportedFeatures": "", "versions": [{ "apiFullVersion": "v1", "apiVersionInUri": "/nnrf-disc/v1", "expiry": "" }] }], "nfStatus": "REGISTERED", "nfType": "NRF", "nrfInfo": { "servedAmfInfo": {}, "servedAusfInfo": {}, "servedBsfInfo": {}, "servedChfInfo": {}, "servedPcfInfo": {}, "servedSmfInfo": {}, "servedUdmInfo": {}, "servedUdrInfo": {}, "servedUpfInfo": {} }, "nsiList": [], "pcfInfo": { "dnnList": [], "rxDiamHost": "", "rxDiamRealm": "", "supiRanges": [] }, "perPlmnSnssaiList": [], "plmnList": [{ "mcc": "001", "mnc": "001" }, { "mcc": "002", "mnc": "002" }], "priority": 0, "recoveryTime": "", "sNssais": [{ "sd": "", "sst": 1 }], "smfInfo": { "accessType": [], "pgwFqdn": "", "sNssaiSmfInfoList": [], "taiList": [], "taiRangeList": [] }, "udmInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "routingIndicators": [], "supiRanges": [] }, "udrInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "supiRanges": [], "supportedDataSets": [] }, "upfInfo": { "interfaceUpfInfoList": [], "iwkEpsInd": false, "pduSessionTypes": [], "sNssaiUpfInfoList": [], "smfServingArea": [] } }
+            const expectedObject = {"allowedNfDomains":[],"allowedNfTypes":["NEF","PCF","UDM","UDR","AF"],"allowedNssais":[{"sd":"","sst":1}],"allowedPlmns":[],"fqdn":"","heartBeatTimer":3,"interPlmnFqdn":"","ipv4Addresses":["10.10.23.8"],"ipv6Addresses":[],"nfInstanceId":"d7d2e36b-dbe5-4f79-bbcd-c15ff2137bcb","nfServices":[{"allowedNfDomains":[],"allowedNfTypes":[],"allowedNssais":[],"allowedPlmns":[],"fqdn":"","interPlmnFqdn":"","ipEndPoints":[{"ipv4Address":"10.10.23.8","ipv6Address":"","port":8201,"transport":""}],"nfServiceStatus":"REGISTERED","recoveryTime":"","scheme":"http","serviceInstanceId":"d7d2e36b-dbe5-4f79-bbcd-c15ff2137bcb","serviceName":"nnef-pfdmanagement","versions":[{"apiFullVersion":"v1","apiVersionInUri":"/nnef-pfdmanagement/v1","expiry":""}]}],"nfStatus":"REGISTERED","nfType":"NEF","sNssais":[{"sd":"","sst":1}]}
 
             try {
                 // WHEN
@@ -252,6 +252,7 @@ describe('NRF', function () {
                 , 'get', 'security'
             ];
             const expectedObject = {"JWTAuthenticate":false,"MutualAuthenticate":false,"OAuth2":{"PrivateKey":"11certificate/jwt.key","PublicKey":"11certificate/jwt.pub"},"TLS":{"PrivateKey":"11certificate/client.key"},"TLSSecure":false}
+
             const fileContentStartsWith = '{"JWTAuthenticate":'
 
             try {
@@ -376,74 +377,12 @@ describe('NRF', function () {
                 throw (error)
             }
         });
-
-        it('additional-services\'nin Bilgileri çekilir', async function () {
-            // GIVEN
-            var args = [
-                ...(argsMaster.filter(a => !(a.startsWith('--loglevel'))))
-                , '--loglevel=nolog'
-                , '-o', outputFilePath
-                , 'get', 'additional-services'
-            ];
-            const fileContentStartsWith = '[{"allowedNfDomains":'
-
-            try {
-                // WHEN
-                const response = await cmd.execute(nfJsFilePath, args);
-                log(">>>> response: ", response);
-
-                // THEN
-                // Çıktı dosya oluşturulmuş olmalı
-                expect(fs.existsSync(outputFilePath))
-
-                var fileContent = fs.readFileSync(outputFilePath, 'utf-8')
-                log(">>>> fileContent: ", fileContent);
-
-                expect(fileContent.startsWith(fileContentStartsWith)).to.be.true
-            } catch (error) {
-                loge(">>>>>>>>>> error: ", error)
-                throw (error)
-            }
-        });
-
-        it('service-settings\'nin Bilgileri çekilir', async function () {
-            // GIVEN
-            var args = [
-                ...(argsMaster.filter(a => !(a.startsWith('--loglevel'))))
-                , '--loglevel=nolog'
-                , '-o', outputFilePath
-                , 'get', 'service-settings'
-            ];
-            const expectedObject = { "AlarmServiceName": "nnrf-nfm", "NFDiscoveryService": { "TDiscoveryValidityPeriod": 3600000 }, "NFManagementService": { "Heartbeat": { "HeartbeatFailureCount": 3, "THeartbeatPeriod": 30000 }, "TSubscriberValidityPeriod": 3600000, "TSubscribersCleanupPeriod": 1800000 }, "NumberofIOServiceThreads": 6 }
-            const fileContentStartsWith = '{"AlarmServiceName"'
-
-            try {
-                // WHEN
-                const response = await cmd.execute(nfJsFilePath, args);
-                log(">>>> response: ", response);
-
-                // THEN
-                // Çıktı dosya oluşturulmuş olmalı
-                expect(fs.existsSync(outputFilePath))
-
-                var fileContent = fs.readFileSync(outputFilePath, 'utf-8')
-                log(">>>> fileContent: ", fileContent);
-
-                expect(fileContent.startsWith(fileContentStartsWith)).to.be.true
-
-                var actualResponseObject = JSON.parse(fileContent.trim())
-                expect(actualResponseObject).to.have.all.keys(Object.keys(expectedObject));
-            } catch (error) {
-                loge(">>>>>>>>>> error: ", error)
-                throw (error)
-            }
-        });
     });
 
     describe('SET ve DELETE ile', function () {
         it('nfprofile "allowedNfTypes" Dizisine kabul edilmeyecek bilgi gönderilir ve 400 hata kodu döner', async function () {
             // GIVEN
-            var newData = {"allowedNfDomains":[],"allowedNfTypes":["CEM","NRF"],"allowedNssais":[{"sd":"","sst":1}],"allowedPlmns":[],"amfInfo":{"amfRegionId":"","amfSetId":"","backupInfoAmfFailure":[],"backupInfoAmfRemoval":[],"guamiList":[],"n2InterfaceAmfInfo":{"amfName":"","ipv4EndpointAddress":[],"ipv6EndpointAddress":[]},"taiList":[],"taiRangeList":[]},"ausfInfo":{"groupId":"","routingIndicators":[],"supiRanges":[]},"bsfInfo":{"dnnList":[],"ipDomainList":[],"ipv4AddressRanges":[],"ipv6PrefixRanges":[]},"capacity":0,"chfInfo":{"gpsiRangeList":[],"plmnRangeList":[],"supiRangeList":[]},"customInfo":null,"defaultNotificationSubscriptions":[],"fqdn":"","heartBeatTimer":3,"interPlmnFqdn":"","ipv4Addresses":["10.10.23.8"],"ipv6Addresses":[],"load":0,"locality":"","nfInstanceId":"d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece","nfProfileChangesInd":false,"nfProfileChangesSupportInd":false,"nfServicePersistence":false,"nfServices":[{"allowedNfDomains":[],"allowedNfTypes":[],"allowedNssais":[],"allowedPlmns":[],"apiPrefix":"","capacity":0,"chfServiceInfo":{"primaryChfServiceInstance":"","secondaryChfServiceInstance":""},"defaultNotificationSubscriptions":[],"fqdn":"","interPlmnFqdn":"","ipEndPoints":[{"ipv4Address":"10.10.23.8","ipv6Address":"fe80::a00:27ff:feae:3fc8%eps0s8","port":8001,"transport":""}],"load":0,"nfServiceStatus":"REGISTERED","priority":0,"recoveryTime":"","scheme":"http","serviceInstanceId":"d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece","serviceName":"nnrf-nfm","supportedFeatures":"","versions":[{"apiFullVersion":"v1","apiVersionInUri":"/nnrf-nfm/v1","expiry":""}]},{"allowedNfDomains":[],"allowedNfTypes":[],"allowedNssais":[],"allowedPlmns":[],"apiPrefix":"","capacity":0,"chfServiceInfo":{"primaryChfServiceInstance":"","secondaryChfServiceInstance":""},"defaultNotificationSubscriptions":[],"fqdn":"","interPlmnFqdn":"","ipEndPoints":[{"ipv4Address":"10.10.23.8","ipv6Address":"","port":8006,"transport":""}],"load":0,"nfServiceStatus":"REGISTERED","priority":0,"recoveryTime":"","scheme":"http","serviceInstanceId":"d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece","serviceName":"nnrf-disc","supportedFeatures":"","versions":[{"apiFullVersion":"v1","apiVersionInUri":"/nnrf-disc/v1","expiry":""}]}],"nfStatus":"REGISTERED","nfType":"NRF","nrfInfo":{"servedAmfInfo":{},"servedAusfInfo":{},"servedBsfInfo":{},"servedChfInfo":{},"servedPcfInfo":{},"servedSmfInfo":{},"servedUdmInfo":{},"servedUdrInfo":{},"servedUpfInfo":{}},"nsiList":[],"pcfInfo":{"dnnList":[],"rxDiamHost":"","rxDiamRealm":"","supiRanges":[]},"perPlmnSnssaiList":[],"plmnList":[{"mcc":"001","mnc":"001"},{"mcc":"002","mnc":"002"}],"priority":0,"recoveryTime":"","sNssais":[{"sd":"","sst":1}],"smfInfo":{"accessType":[],"pgwFqdn":"","sNssaiSmfInfoList":[],"taiList":[],"taiRangeList":[]},"udmInfo":{"externalGroupIdentifiersRanges":[],"gpsiRanges":[],"groupId":"","routingIndicators":[],"supiRanges":[]},"udrInfo":{"externalGroupIdentifiersRanges":[],"gpsiRanges":[],"groupId":"","supiRanges":[],"supportedDataSets":[]},"upfInfo":{"interfaceUpfInfoList":[],"iwkEpsInd":false,"pduSessionTypes":[],"sNssaiUpfInfoList":[],"smfServingArea":[]}}
+            var newData = {"allowedNfDomains":[],"allowedNfTypes":["CEM","NEF","PCF","UDM","UDR","AF"],"allowedNssais":[{"sd":"","sst":1}],"allowedPlmns":[],"fqdn":"","heartBeatTimer":3,"interPlmnFqdn":"","ipv4Addresses":["10.10.23.8"],"ipv6Addresses":[],"nfInstanceId":"d7d2e36b-dbe5-4f79-bbcd-c15ff2137bcb","nfServices":[{"allowedNfDomains":[],"allowedNfTypes":[],"allowedNssais":[],"allowedPlmns":[],"fqdn":"","interPlmnFqdn":"","ipEndPoints":[{"ipv4Address":"10.10.23.8","ipv6Address":"","port":8201,"transport":""}],"nfServiceStatus":"REGISTERED","recoveryTime":"","scheme":"http","serviceInstanceId":"d7d2e36b-dbe5-4f79-bbcd-c15ff2137bcb","serviceName":"nnef-pfdmanagement","versions":[{"apiFullVersion":"v1","apiVersionInUri":"/nnef-pfdmanagement/v1","expiry":""}]}],"nfStatus":"REGISTERED","nfType":"NEF","sNssais":[{"sd":"","sst":1}]}
             var args = [
                 ...(argsMaster.filter(a => !(a.startsWith('--loglevel') || a.startsWith('-q'))))
                 , '--loglevel=info'
@@ -466,7 +405,7 @@ describe('NRF', function () {
 
         it('nfprofile "allowedNfDomains" Dizisine kabul bir metin elemanı eklenir ve gönderilir, sonuç 200 koduyla başarılı döner', async function () {
             // GIVEN
-            var newData = {"allowedNfDomains":["CEM"],"allowedNfTypes":["NRF"],"allowedNssais":[{"sd":"","sst":1}],"allowedPlmns":[],"amfInfo":{"amfRegionId":"","amfSetId":"","backupInfoAmfFailure":[],"backupInfoAmfRemoval":[],"guamiList":[],"n2InterfaceAmfInfo":{"amfName":"","ipv4EndpointAddress":[],"ipv6EndpointAddress":[]},"taiList":[],"taiRangeList":[]},"ausfInfo":{"groupId":"","routingIndicators":[],"supiRanges":[]},"bsfInfo":{"dnnList":[],"ipDomainList":[],"ipv4AddressRanges":[],"ipv6PrefixRanges":[]},"capacity":0,"chfInfo":{"gpsiRangeList":[],"plmnRangeList":[],"supiRangeList":[]},"customInfo":null,"defaultNotificationSubscriptions":[],"fqdn":"","heartBeatTimer":3,"interPlmnFqdn":"","ipv4Addresses":["10.10.23.8"],"ipv6Addresses":[],"load":0,"locality":"","nfInstanceId":"d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece","nfProfileChangesInd":false,"nfProfileChangesSupportInd":false,"nfServicePersistence":false,"nfServices":[{"allowedNfDomains":[],"allowedNfTypes":[],"allowedNssais":[],"allowedPlmns":[],"apiPrefix":"","capacity":0,"chfServiceInfo":{"primaryChfServiceInstance":"","secondaryChfServiceInstance":""},"defaultNotificationSubscriptions":[],"fqdn":"","interPlmnFqdn":"","ipEndPoints":[{"ipv4Address":"10.10.23.8","ipv6Address":"fe80::a00:27ff:feae:3fc8%eps0s8","port":8001,"transport":""}],"load":0,"nfServiceStatus":"REGISTERED","priority":0,"recoveryTime":"","scheme":"http","serviceInstanceId":"d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece","serviceName":"nnrf-nfm","supportedFeatures":"","versions":[{"apiFullVersion":"v1","apiVersionInUri":"/nnrf-nfm/v1","expiry":""}]},{"allowedNfDomains":[],"allowedNfTypes":[],"allowedNssais":[],"allowedPlmns":[],"apiPrefix":"","capacity":0,"chfServiceInfo":{"primaryChfServiceInstance":"","secondaryChfServiceInstance":""},"defaultNotificationSubscriptions":[],"fqdn":"","interPlmnFqdn":"","ipEndPoints":[{"ipv4Address":"10.10.23.8","ipv6Address":"","port":8006,"transport":""}],"load":0,"nfServiceStatus":"REGISTERED","priority":0,"recoveryTime":"","scheme":"http","serviceInstanceId":"d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece","serviceName":"nnrf-disc","supportedFeatures":"","versions":[{"apiFullVersion":"v1","apiVersionInUri":"/nnrf-disc/v1","expiry":""}]}],"nfStatus":"REGISTERED","nfType":"NRF","nrfInfo":{"servedAmfInfo":{},"servedAusfInfo":{},"servedBsfInfo":{},"servedChfInfo":{},"servedPcfInfo":{},"servedSmfInfo":{},"servedUdmInfo":{},"servedUdrInfo":{},"servedUpfInfo":{}},"nsiList":[],"pcfInfo":{"dnnList":[],"rxDiamHost":"","rxDiamRealm":"","supiRanges":[]},"perPlmnSnssaiList":[],"plmnList":[{"mcc":"001","mnc":"001"},{"mcc":"002","mnc":"002"}],"priority":0,"recoveryTime":"","sNssais":[{"sd":"","sst":1}],"smfInfo":{"accessType":[],"pgwFqdn":"","sNssaiSmfInfoList":[],"taiList":[],"taiRangeList":[]},"udmInfo":{"externalGroupIdentifiersRanges":[],"gpsiRanges":[],"groupId":"","routingIndicators":[],"supiRanges":[]},"udrInfo":{"externalGroupIdentifiersRanges":[],"gpsiRanges":[],"groupId":"","supiRanges":[],"supportedDataSets":[]},"upfInfo":{"interfaceUpfInfoList":[],"iwkEpsInd":false,"pduSessionTypes":[],"sNssaiUpfInfoList":[],"smfServingArea":[]}}
+            var newData = {"allowedNfDomains":["CEM"],"allowedNfTypes":["NEF","PCF","UDM","UDR","AF"],"allowedNssais":[{"sd":"","sst":1}],"allowedPlmns":[],"fqdn":"","heartBeatTimer":3,"interPlmnFqdn":"","ipv4Addresses":["10.10.23.8"],"ipv6Addresses":[],"nfInstanceId":"d7d2e36b-dbe5-4f79-bbcd-c15ff2137bcb","nfServices":[{"allowedNfDomains":[],"allowedNfTypes":[],"allowedNssais":[],"allowedPlmns":[],"fqdn":"","interPlmnFqdn":"","ipEndPoints":[{"ipv4Address":"10.10.23.8","ipv6Address":"","port":8201,"transport":""}],"nfServiceStatus":"REGISTERED","recoveryTime":"","scheme":"http","serviceInstanceId":"d7d2e36b-dbe5-4f79-bbcd-c15ff2137bcb","serviceName":"nnef-pfdmanagement","versions":[{"apiFullVersion":"v1","apiVersionInUri":"/nnef-pfdmanagement/v1","expiry":""}]}],"nfStatus":"REGISTERED","nfType":"NEF","sNssais":[{"sd":"","sst":1}]}
             var args = [
                 ...(argsMaster.filter(a => !(a.startsWith('--loglevel') || a.startsWith('-q'))))
                 , '--loglevel=debug'
@@ -502,7 +441,7 @@ describe('NRF', function () {
                 "NumberofServingServerThreads": 94
             }
             var args = [
-                '--dest', 'localhost:8009'
+                '--dest', 'localhost:8204'
                 , '-r', 'false'
                 , '--loglevel', 'debug'
                 // , '-q', true
@@ -544,7 +483,7 @@ describe('NRF', function () {
             }
 
             var args = [
-                '--dest', 'localhost:8009'
+                '--dest', 'localhost:8204'
                 , '-r', 'false'
                 , '--loglevel', 'debug'
                 // , '-q', true
@@ -580,7 +519,7 @@ describe('NRF', function () {
             }
 
             var args = [
-                '--dest', 'localhost:8009'
+                '--dest', 'localhost:8204'
                 , '-r', 'false'
                 , '--loglevel', 'debug'
                 // , '-q', true
@@ -624,7 +563,7 @@ describe('NRF', function () {
             ]
 
             var args = [
-                '--dest', 'localhost:8009'
+                '--dest', 'localhost:8204'
                 , '-r', 'false'
                 , '--loglevel', 'debug'
                 // , '-q', true
@@ -672,7 +611,7 @@ describe('NRF', function () {
             }
 
             var args = [
-                '--dest', 'localhost:8009'
+                '--dest', 'localhost:8204'
                 , '-r', 'false'
                 , '--loglevel', 'debug'
                 // , '-q', true
@@ -698,12 +637,12 @@ describe('NRF', function () {
             }
         });
 
-        it('nf-put-log-priority güncellenir ve sonuç nesne gönderilen ile aynı döner', async function () {
+        it.skip('nf-put-log-priority güncellenir ve sonuç nesne gönderilen ile aynı döner', async function () {
             // GIVEN
             var newData = { "LogLevel": "INFO" }
 
             var args = [
-                '--dest', 'localhost:8005'
+                '--dest', 'localhost:8205'
                 , '-r', 'false'
                 , '--loglevel', 'debug'
                 // , '-q', true

@@ -15,8 +15,12 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Mocha Tests 1",
+            "name": "Mocha Tests RUN",
             "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+            "env": {
+                "DEBUG_TEST":"false",
+                "NODE_ENV":"prod"
+            },
             "args": [
                 // "--slow",
                 // "5000",
