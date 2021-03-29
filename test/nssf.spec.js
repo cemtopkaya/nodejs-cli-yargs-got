@@ -156,7 +156,7 @@ describe('NSSF', function () {
 
     describe('Settings', function () {
 
-        let argsMaster = [...argsCommon, '--dest=localhost:8103'];
+        var argsMaster = [...argsCommon, '--dest=localhost:8103'];
         describe('GET ile', function () {
 
             this.beforeEach(() => {
@@ -170,7 +170,7 @@ describe('NSSF', function () {
             it('nfprofile\'nin Bilgileri çekilir', async function () {
                 // GIVEN
                 var args = [
-                    ...argMaster
+                    ...argsMaster
                     , '-o', outputFilePath
                     , 'get', 'nfprofile'
                 ];
@@ -202,7 +202,7 @@ describe('NSSF', function () {
             it('general\'nin Bilgileri çekilir', async function () {
                 // GIVEN
                 var args = [
-                    ...argMaster
+                    ...argsMaster
                     , '-o', outputFilePath
                     , 'get', 'general'
                 ];
@@ -234,7 +234,7 @@ describe('NSSF', function () {
             it('security\'nin Bilgileri çekilir', async function () {
                 // GIVEN
                 var args = [
-                    ...argMaster
+                    ...argsMaster
                     , '-o', outputFilePath
                     , 'get', 'security'
                 ];
@@ -266,7 +266,7 @@ describe('NSSF', function () {
             it('logging\'nin Bilgileri çekilir', async function () {
                 // GIVEN
                 var args = [
-                    ...argMaster
+                    ...argsMaster
                     , '-o', outputFilePath
                     , 'get', 'logging'
                 ];
@@ -298,7 +298,7 @@ describe('NSSF', function () {
             it('nrf\'nin Bilgileri çekilir', async function () {
                 // GIVEN
                 var args = [
-                    ...argMaster
+                    ...argsMaster
                     , '-o', outputFilePath
                     , 'get', 'nrf'
                 ];
@@ -330,7 +330,7 @@ describe('NSSF', function () {
             it('db\'nin Bilgileri çekilir', async function () {
                 // GIVEN
                 var args = [
-                    ...argMaster
+                    ...argsMaster
                     , '-o', outputFilePath
                     , 'get', 'db'
                 ];
@@ -385,7 +385,7 @@ describe('NSSF', function () {
                 // GIVEN
                 var newData = { "allowedNfDomains": [], "allowedNfTypes": ["CEM", "NSSF", "AMF"], "allowedNssais": [{ "sd": "", "sst": 1 }], "allowedPlmns": [], "amfInfo": { "amfRegionId": "", "amfSetId": "", "backupInfoAmfFailure": [], "backupInfoAmfRemoval": [], "guamiList": [], "n2InterfaceAmfInfo": { "amfName": "", "ipv4EndpointAddress": [], "ipv6EndpointAddress": [] }, "taiList": [], "taiRangeList": [] }, "ausfInfo": { "groupId": "", "routingIndicators": [], "supiRanges": [] }, "bsfInfo": { "dnnList": [], "ipDomainList": [], "ipv4AddressRanges": [], "ipv6PrefixRanges": [] }, "capacity": 0, "chfInfo": { "gpsiRangeList": [], "plmnRangeList": [], "supiRangeList": [] }, "customInfo": null, "defaultNotificationSubscriptions": [], "fqdn": "", "heartBeatTimer": 3, "interPlmnFqdn": "", "ipv4Addresses": ["10.10.23.8"], "ipv6Addresses": [], "load": 0, "locality": "", "nfInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "nfProfileChangesInd": false, "nfProfileChangesSupportInd": false, "nfServicePersistence": false, "nfServices": [{ "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8100, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "serviceName": "nnssf-nsselection", "supportedFeatures": "", "versions": [{ "apiFullVersion": "v1", "apiVersionInUri": "/nnssf-nsselection/v1", "expiry": "" }] }, { "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8101, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "serviceName": "nnssf-nssaiavailability", "supportedFeatures": "", "versions": [{ "apiFullVersion": "", "apiVersionInUri": "/nnssf-nssaiavailability/v1", "expiry": "" }] }], "nfStatus": "REGISTERED", "nfType": "NSSF", "nsiList": [], "pcfInfo": { "dnnList": [], "rxDiamHost": "", "rxDiamRealm": "", "supiRanges": [] }, "perPlmnSnssaiList": [], "plmnList": [], "priority": 0, "recoveryTime": "", "sNssais": [{ "sd": "", "sst": 1 }], "smfInfo": { "accessType": [], "pgwFqdn": "", "sNssaiSmfInfoList": [], "taiList": [], "taiRangeList": [] }, "udmInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "routingIndicators": [], "supiRanges": [] }, "udrInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "supiRanges": [], "supportedDataSets": [] }, "upfInfo": { "interfaceUpfInfoList": [], "iwkEpsInd": false, "pduSessionTypes": [], "sNssaiUpfInfoList": [], "smfServingArea": [] } }
                 var args = [
-                    ...argMaster
+                    ...argsMaster
                     , '--data', `'${JSON.stringify(newData)}'`
                     , 'set', 'nfprofile'
                 ];
@@ -408,7 +408,7 @@ describe('NSSF', function () {
                 // GIVEN
                 var newData = { "allowedNfDomains": ["cem"], "allowedNfTypes": ["NSSF", "AMF"], "allowedNssais": [{ "sd": "", "sst": 1 }], "allowedPlmns": [], "amfInfo": { "amfRegionId": "", "amfSetId": "", "backupInfoAmfFailure": [], "backupInfoAmfRemoval": [], "guamiList": [], "n2InterfaceAmfInfo": { "amfName": "", "ipv4EndpointAddress": [], "ipv6EndpointAddress": [] }, "taiList": [], "taiRangeList": [] }, "ausfInfo": { "groupId": "", "routingIndicators": [], "supiRanges": [] }, "bsfInfo": { "dnnList": [], "ipDomainList": [], "ipv4AddressRanges": [], "ipv6PrefixRanges": [] }, "capacity": 0, "chfInfo": { "gpsiRangeList": [], "plmnRangeList": [], "supiRangeList": [] }, "customInfo": null, "defaultNotificationSubscriptions": [], "fqdn": "", "heartBeatTimer": 3, "interPlmnFqdn": "", "ipv4Addresses": ["10.10.23.8"], "ipv6Addresses": [], "load": 0, "locality": "", "nfInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "nfProfileChangesInd": false, "nfProfileChangesSupportInd": false, "nfServicePersistence": false, "nfServices": [{ "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8100, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "serviceName": "nnssf-nsselection", "supportedFeatures": "", "versions": [{ "apiFullVersion": "v1", "apiVersionInUri": "/nnssf-nsselection/v1", "expiry": "" }] }, { "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8101, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "serviceName": "nnssf-nssaiavailability", "supportedFeatures": "", "versions": [{ "apiFullVersion": "", "apiVersionInUri": "/nnssf-nssaiavailability/v1", "expiry": "" }] }], "nfStatus": "REGISTERED", "nfType": "NSSF", "nsiList": [], "pcfInfo": { "dnnList": [], "rxDiamHost": "", "rxDiamRealm": "", "supiRanges": [] }, "perPlmnSnssaiList": [], "plmnList": [], "priority": 0, "recoveryTime": "", "sNssais": [{ "sd": "", "sst": 1 }], "smfInfo": { "accessType": [], "pgwFqdn": "", "sNssaiSmfInfoList": [], "taiList": [], "taiRangeList": [] }, "udmInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "routingIndicators": [], "supiRanges": [] }, "udrInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "supiRanges": [], "supportedDataSets": [] }, "upfInfo": { "interfaceUpfInfoList": [], "iwkEpsInd": false, "pduSessionTypes": [], "sNssaiUpfInfoList": [], "smfServingArea": [] } }
                 var args = [
-                    ...argMaster
+                    ...argsMaster
                     , '--data', `'${JSON.stringify(newData)}'`
                     , 'set', 'nfprofile'
                 ];
@@ -442,7 +442,7 @@ describe('NSSF', function () {
                     "NumberofServingServerThreads": 94
                 }
                 var args = [
-                    ...argMaster
+                    ...argsMaster
                     , '--data', `'${JSON.stringify(newData)}'`
                     , 'set', 'general'
                 ];
@@ -481,7 +481,7 @@ describe('NSSF', function () {
                 }
 
                 var args = [
-                    ...argMaster
+                    ...argsMaster
                     , '--data', `'${JSON.stringify(newData)}'`
                     , 'set', 'security'
                 ];
@@ -514,7 +514,7 @@ describe('NSSF', function () {
                 }
 
                 var args = [
-                    ...argMaster
+                    ...argsMaster
                     , '--data', `'${JSON.stringify(newData)}'`
                     , 'set', 'logging'
                 ];
@@ -555,7 +555,7 @@ describe('NSSF', function () {
                 ]
 
                 var args = [
-                    ...argMaster
+                    ...argsMaster
                     , '--data', `'${JSON.stringify(newData)}'`
                     , 'set', 'nrf'
                 ];
@@ -600,7 +600,7 @@ describe('NSSF', function () {
                 }
 
                 var args = [
-                    ...argMaster
+                    ...argsMaster
                     , '--data', `'${JSON.stringify(newData)}'`
                     , 'set', 'db'
                 ];
@@ -658,7 +658,7 @@ describe('NSSF', function () {
     describe('Configuration', function () {
         
         let argsMaster = [...argsCommon, '--dest=localhost:8102'];
-        describe.only('NSI Slice', function () {
+        describe('NSI Slice', function () {
 
             it('nsiprofiles\'nin Bilgileri çekilir', async function () {
                 // GIVEN
