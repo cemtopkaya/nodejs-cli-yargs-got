@@ -1,0 +1,45 @@
+ARG BASE_IMAGE=cinar:1.1.1
+FROM $BASE_IMAGE
+ENV VERSION=4.5
+ENV JENKINS_HOME /home/jenkins
+ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+ENV PATH $JAVA_HOME/bin:$PATH
+ENV JAVA_VERSION=8u282
+ARG user=jenkins
+ARG group=jenkins
+ARG uid=1000
+ARG gid=1000
+RUN apt-get update
+RUN apt-get -y install \
+        git \
+        sshpass \
+        openjdk-8-jdk \
+        openssh-server 
+ARG AGENT_WORKDIR=/home/${user}/agent
+ADD http://192.168.13.47/ssl_certificate/ca-certificate.crt /etc/ssl/certs/
+RUN update-ca-certificates && \
+    git config --global http.sslCAinfo /etc/ssl/certs/ca-certificates.crt && \
+    groupadd -g ${gid} ${group} && \
+    useradd -c "Jenkins user" -d /home/${user} -u ${uid} -g ${gid} -m ${user} -p sagWlIWIC4dLo -s /bin/bash && \
+    echo "jenkins  ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+    mkdir /var/run/sshd && \
+    echo 'root:cicd123' | chpasswd && \
+    sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+    service ssh restart && \
+    mkdir /opt/cinar/packages && \
+    mkdir /home/jenkins/.ssh && \
+    chown -R jenkins:jenkins /opt/cinar/packages && \
+    cd /home/jenkins/.ssh && \
+    ssh-keygen -q -t rsa -N '' -f /home/jenkins/.ssh/id_rsa && \
+    chown -R jenkins:jenkins /etc/ssl/certs/ && \
+    /sbin/ldconfig -v
+RUN curl --create-dirs -fsSLo /usr/share/jenkins/agent.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
+  && chown -R jenkins:jenkins /usr/share/jenkins \
+  && chmod 755 /usr/share/jenkins   && chmod 644 /usr/share/jenkins/agent.jar \
+  && ln -sf /usr/share/jenkins/agent.jar /usr/share/jenkins/slave.jar 
+USER ${user}
+ENV AGENT_WORKDIR=${AGENT_WORKDIR}
+#RUN mkdir /home/${user}/.jenkins && mkdir -p ${AGENT_WORKDIR}
+VOLUME /home/${user}/.jenkins
+VOLUME ${AGENT_WORKDIR}
+WORKDIR /home/${user}

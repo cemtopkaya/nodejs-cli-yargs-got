@@ -1,0 +1,237 @@
+{
+    "_comment": "The unit for time period is milliseconds.",
+    "date": "2020-Mar-30",
+    "author": "Ozgun AY",
+
+    "General": {
+        "NumberofServingServerThreads": 6,
+        "ClientCount": 4,
+        "ClientTimeout": 3000,
+        "HomePlmnId": {
+            "mcc": "001",
+            "mnc": "001"
+        }
+    },
+
+    "Security": {
+        "JWTAuthenticate": false,
+        "MutualAuthenticate": false,
+        "OAuth2": {
+            "PrivateKey": "certificate\/jwt.key",
+            "PublicKey": "certificate\/jwt.pub"
+        },
+        "TLS": {
+            "Certificate": "certificate\/localhost.crt",
+            "PrivateKey": "certificate\/localhost.key"
+        }
+    },
+
+    "Logging": {
+        "Directory": "\/var\/log\/cinar\/nrf\/",
+        "DisplayLog": true,
+        "FileName": "NRF",
+        "LogLevel": "DEBUG"
+    },
+
+    "NRF": [
+        {
+            "IPAddress": "10.10.23.8",
+            "ClientCount": 4,
+            "ClientTimeout": 3000,
+            "NfmServicePort": 8001,
+            "DiscServicePort": 8006,
+            "OAuth2ServicePort": 8007,
+            "TAccessTokenPeriod": 10000,
+            "TCheckPeriod": 60000,
+            "TRetryPeriod": 3000,
+            "ForwarderClientAmount" : 10,
+            "Schema": "https",
+            "ForwardingStatus":true,
+            "SliceMode":false
+        }
+    ],
+
+    "Database": {
+        "DatabaseType": "MONGO",
+        "Server": "10.10.21.12",
+        "Port": 30558,
+        "DatabaseName": "cinarnrftest",
+        "UserName": "cnrusr",
+        "Password": "P5vKG6vE",
+        "ConnectionRetryPeriod": 5000,
+        "Tables": [
+            "cinarnfcollection",
+            "cinarsubscollection",
+            "cinarnfstatecollection"
+        ],
+        "ConnectionPoolSize": 4,
+        "ConnectionTimeout": 1000,
+        "ServerSelectionTimeout": 1000,
+        "SocketTimeout": 1000
+    },
+
+    "AdditionalNFServices": [
+        {
+            "allowedNfDomains": [],
+            "allowedNfTypes": [],
+            "allowedNssais": [],
+            "allowedPlmns": [],
+            "apiPrefix": "",
+            "capacity": 0,
+            "defaultNotificationSubscriptions": [],
+            "fqdn": "",
+            "interPlmnFqdn": "",
+            "ipEndPoints": [
+                {
+                    "ipv4Address": "10.10.23.8",
+                    "ipv6Address": "",
+                    "port": 8007,
+                    "transport": ""
+                }
+            ],
+            "load": 0,
+            "nfServiceStatus": "REGISTERED",
+            "priority": 0,
+            "recoveryTime": "",
+            "scheme": "http",
+            "serviceInstanceId": "d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece",
+            "serviceName": "",
+            "supportedFeatures": "",
+            "versions": [
+                {
+                    "apiFullVersion": "",
+                    "apiVersionInUri": "/oauth2",
+                    "expiry": ""
+                }
+            ]
+        },
+        {
+            "allowedNfDomains": [],
+            "allowedNfTypes": [],
+            "allowedNssais": [],
+            "allowedPlmns": [],
+            "apiPrefix": "",
+            "capacity": 0,
+            "defaultNotificationSubscriptions": [],
+            "fqdn": "",
+            "interPlmnFqdn": "",
+            "ipEndPoints": [
+                {
+                    "ipv4Address": "10.10.23.8",
+                    "ipv6Address": "",
+                    "port": 8009,
+                    "transport": ""
+                }
+            ],
+            "load": 0,
+            "nfServiceStatus": "REGISTERED",
+            "priority": 0,
+            "recoveryTime": "",
+            "scheme": "https",
+            "serviceInstanceId": "d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece",
+            "serviceName": "",
+            "supportedFeatures": "",
+            "versions": [
+                {
+                    "apiFullVersion": "v1",
+                    "apiVersionInUri": "/nrf-settings/v1",
+                    "expiry": ""
+                }
+            ]
+        },
+        {
+            "allowedNfDomains": [],
+            "allowedNfTypes": [],
+            "allowedNssais": [],
+            "allowedPlmns": [],
+            "apiPrefix": "",
+            "capacity": 0,
+            "defaultNotificationSubscriptions": [],
+            "fqdn": "",
+            "interPlmnFqdn": "",
+            "ipEndPoints": [
+                {
+                    "ipv4Address": "10.10.23.8",
+                    "ipv6Address": "",
+                    "port": 8010,
+                    "transport": ""
+                }
+            ],
+            "load": 0,
+            "nfServiceStatus": "REGISTERED",
+            "priority": 0,
+            "recoveryTime": "",
+            "scheme": "http",
+            "serviceInstanceId": "d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece",
+            "serviceName": "",
+            "supportedFeatures": "",
+            "versions": [
+                {
+                    "apiFullVersion": "v1",
+                    "apiVersionInUri": "/metrics",
+                    "expiry": ""
+                }
+            ]
+        },
+        {
+            "allowedNfDomains": [],
+            "allowedNfTypes": [],
+            "allowedNssais": [],
+            "allowedPlmns": [],
+            "apiPrefix": "",
+            "capacity": 0,
+            "defaultNotificationSubscriptions": [],
+            "fqdn": "",
+            "interPlmnFqdn": "",
+            "ipEndPoints": [
+                {
+                    "ipv4Address": "10.10.23.8",
+                    "ipv6Address": "",
+                    "port": 8005,
+                    "transport": ""
+                }
+            ],
+            "load": 0,
+            "nfServiceStatus": "REGISTERED",
+            "priority": 0,
+            "recoveryTime": "",
+            "scheme": "https",
+            "serviceInstanceId": "d7d2e36b-dbe5-4f79-bbcd-c15ff2176ece",
+            "serviceName": "",
+            "supportedFeatures": "",
+            "versions": [
+                {
+                    "apiFullVersion": "v1",
+                    "apiVersionInUri": "/log/v1",
+                    "expiry": ""
+                }
+            ]
+        }
+    ],
+
+    "ServiceSettings": {
+        "AlarmServiceName": "nnrf-nfm",
+        "NumberofIOServiceThreads": 6,
+        "NFManagementService": {
+            "Heartbeat": {
+                "THeartbeatPeriod": 30000,
+                "HeartbeatFailureCount": 3
+            },
+            "TSubscriberValidityPeriod": 3600000,
+            "TSubscribersCleanupPeriod": 1800000
+        },
+        "NFDiscoveryService": {
+            "TDiscoveryValidityPeriod": 3600000
+        }
+    },
+
+    "RoamingPlmns" : [
+        {
+            "mcc":  "002",
+            "mnc":  "002",
+            "NFDiscoveryUri": "https://10.10.10.10:8006",
+            "AccessTokenUri": "https://10.10.10.10:8007",
+            "NFManagementUri": "https://10.10.10.10:8001"
+        }
+    ]
+}

@@ -2,14 +2,12 @@
     // Use IntelliSense to learn about possible attributes.
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    
     // "--require",
     // "esm",
     // "--require",
     // "${workspaceFolder}/test/mocha-setup.js",
     // "--reporter",
     // "dot",
-
     "version": "0.2.0",
     "configurations": [
         {
@@ -18,15 +16,19 @@
             "name": "Mocha Tests RUN",
             "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
             "env": {
-                "DEBUG_TEST":"false",
-                "NODE_ENV":"prod"
+                "DEBUG_TEST": "false",
+                "NODE_ENV": "prod"
             },
             "args": [
-                // "--slow",
-                // "5000",
+                "--slow",
+                "5000",
                 "-u",
                 "bdd",
+                "--timeout",
+                10000,
                 "--colors",
+                // "--file",
+                // "./test/docker-setup.js",
                 "${workspaceFolder}/test/**/*.spec.js",
             ],
             "internalConsoleOptions": "openOnSessionStart",
@@ -60,8 +62,8 @@
                 "<node_internals>/**"
             ],
             "env": {
-                "DEBUG_TEST":"true",
-                "NODE_ENV":"dev"
+                "DEBUG_TEST": "true",
+                "NODE_ENV": "dev"
             },
             "type": "pwa-node"
         },

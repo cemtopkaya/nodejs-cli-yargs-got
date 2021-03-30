@@ -1,0 +1,125 @@
+version: "3.4"
+
+services:
+    prod_nrf:
+      container_name: cnrf_prod
+      image: cinar/nrf_prod:${TAG}
+      build:
+        context: .
+        dockerfile: Dockerfile.base.current
+        target: nfinstall
+        args:
+          - ARG_CINAR_ENV=prod
+          - ARG_NF_PAKET_ADI=cnrnrf
+      expose:
+        - 8000-8020
+      volumes:
+        - ./nrf_settings.json:/opt/cinar/nrf/settings.json
+      networks:
+        cli-network:
+          ipv4_address: 10.5.0.5
+      ports:
+        - 8009:8009
+        - 8005:8005
+      privileged: true
+      links:
+        - cinardb
+
+    prod_nef:
+      container_name: cnef_prod
+      image: cinar/nef_prod:${TAG}
+      build:
+        context: .
+        dockerfile: Dockerfile.base.current
+        target: nfinstall
+        args:
+          - ARG_CINAR_ENV=prod
+          - ARG_NF_PAKET_ADI=cnrnef
+      expose:
+        - 8200-8220
+      volumes:
+        - ./nef_settings.json:/opt/cinar/nef/settings.json
+      networks:
+        cli-network:
+          ipv4_address: 10.5.0.4
+      ports:
+        - 8204:8204
+        - 8205:8205
+      privileged: true
+      links:
+        - cinardb
+      
+    prod_nssf:
+      container_name: cnssf_prod
+      image: cinar/nssf_prod:${TAG}
+      build:
+        context: .
+        dockerfile: Dockerfile.base.current
+        target: nfinstall
+        args:
+          - ARG_CINAR_ENV=prod
+          - ARG_NF_PAKET_ADI=cnrnssf
+      expose:
+        - 8100-8120
+      volumes:
+        - ./nssf_settings.json:/opt/cinar/nssf/settings.json
+      networks:
+        cli-network:
+          ipv4_address: 10.5.0.3
+      ports:
+        - 8102:8102
+        - 8103:8103
+        - 8105:8105
+      privileged: true
+      links:
+        - cinardb
+
+    cinardb:
+      container_name: cinardb 
+      # restart: on-failure:10
+      image: mongo
+      environment:
+        - MONGO_INITDB_ROOT_USERNAME=cnrusr
+        - MONGO_INITDB_ROOT_PASSWORD=P5vKG6vE
+      networks:
+        cli-network:
+          ipv4_address: 10.5.0.2
+      ports:
+         - 30558:27017
+      # command: 
+      #   - bash -c 'mongo --authenticationDatabase admin -u cnrusr -p P5vKG6vE cinarnssftest --eval "db.createCollection('cinarnsicollection'); db.createCollection('cinarnssrulescollection'); db.createCollection('cinarconfigurednssaicollection'); db.createCollection('cinaramfavailabilitycollection'); db.createCollection('cinarnssfsubscinarcollection');"'
+
+    dev:
+      container_name: c${NF}_dev
+      image: cinar/${NF}_dev:${TAG}
+      build:
+        context: .
+        dockerfile: Dockerfile.base
+        target: nfbuild
+        args:
+          - ARG_CINAR_ENV=dev
+          - ARG_NF_PAKET_ADI=${NF}
+    
+    jenkins-node:
+      container_name:  c${NF}_jenkins
+      image: cinar/${NF}_jenkins:${TAG}
+      depends_on: 
+        - dev
+      build:
+        context: .
+        dockerfile: Dockerfile.jenkins
+        args:
+          - BASE_IMAGE=cinar/${NF}_dev:${TAG}
+      extra_hosts:
+          - "bitbucket.ulakhaberlesme.com.tr:192.168.10.14"
+      command: java -jar /usr/share/jenkins/agent.jar
+      tty: true
+      stdin_open: true
+      
+networks:
+  cli-network:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.5.0.0/16
+         gateway: 10.5.0.1

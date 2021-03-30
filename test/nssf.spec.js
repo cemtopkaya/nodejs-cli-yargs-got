@@ -4,7 +4,7 @@ const { log, loge } = require('./mocha-setup').logFunctions;
 const { EOL } = require('os');
 const fs = require('fs');
 
-describe('NSSF', function () {
+describe.only('NSSF', function () {
 
     const nfJsFilePath = './src/nssf.js'
     const outputFilePath = './cikti.txt'
@@ -13,6 +13,7 @@ describe('NSSF', function () {
         , '--loglevel=debug'
         , '-q=false'
     ];
+    
     describe('Eksik parametre uyarılarında', function () {
 
         it('dest Noksan bırakılamaz hatası verir', async function () {
@@ -167,7 +168,7 @@ describe('NSSF', function () {
             })
 
 
-            it('nfprofile\'nin Bilgileri çekilir', async function () {
+            it('nfprofile\'ın Bilgileri çekilir', async function () {
                 // GIVEN
                 var args = [
                     ...argsMaster
@@ -175,7 +176,6 @@ describe('NSSF', function () {
                     , 'get', 'nfprofile'
                 ];
                 const expectedObject = { "allowedNfDomains": [], "allowedNfTypes": ["NSSF", "AMF"], "allowedNssais": [{ "sd": "", "sst": 1 }], "allowedPlmns": [], "amfInfo": { "amfRegionId": "", "amfSetId": "", "backupInfoAmfFailure": [], "backupInfoAmfRemoval": [], "guamiList": [], "n2InterfaceAmfInfo": { "amfName": "", "ipv4EndpointAddress": [], "ipv6EndpointAddress": [] }, "taiList": [], "taiRangeList": [] }, "ausfInfo": { "groupId": "", "routingIndicators": [], "supiRanges": [] }, "bsfInfo": { "dnnList": [], "ipDomainList": [], "ipv4AddressRanges": [], "ipv6PrefixRanges": [] }, "capacity": 0, "chfInfo": { "gpsiRangeList": [], "plmnRangeList": [], "supiRangeList": [] }, "customInfo": null, "defaultNotificationSubscriptions": [], "fqdn": "", "heartBeatTimer": 3, "interPlmnFqdn": "", "ipv4Addresses": ["10.10.23.8"], "ipv6Addresses": [], "load": 0, "locality": "", "nfInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "nfProfileChangesInd": false, "nfProfileChangesSupportInd": false, "nfServicePersistence": false, "nfServices": [{ "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8100, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "serviceName": "nnssf-nsselection", "supportedFeatures": "", "versions": [{ "apiFullVersion": "v1", "apiVersionInUri": "/nnssf-nsselection/v1", "expiry": "" }] }, { "allowedNfDomains": [], "allowedNfTypes": [], "allowedNssais": [], "allowedPlmns": [], "apiPrefix": "", "capacity": 0, "chfServiceInfo": { "primaryChfServiceInstance": "", "secondaryChfServiceInstance": "" }, "defaultNotificationSubscriptions": [], "fqdn": "", "interPlmnFqdn": "", "ipEndPoints": [{ "ipv4Address": "10.10.23.8", "ipv6Address": "", "port": 8101, "transport": "" }], "load": 0, "nfServiceStatus": "REGISTERED", "priority": 0, "recoveryTime": "", "scheme": "http", "serviceInstanceId": "81fdab8a-8605-11ea-bc55-0242ac130003", "serviceName": "nnssf-nssaiavailability", "supportedFeatures": "", "versions": [{ "apiFullVersion": "", "apiVersionInUri": "/nnssf-nssaiavailability/v1", "expiry": "" }] }], "nfStatus": "REGISTERED", "nfType": "NSSF", "nsiList": [], "pcfInfo": { "dnnList": [], "rxDiamHost": "", "rxDiamRealm": "", "supiRanges": [] }, "perPlmnSnssaiList": [], "plmnList": [], "priority": 0, "recoveryTime": "", "sNssais": [{ "sd": "", "sst": 1 }], "smfInfo": { "accessType": [], "pgwFqdn": "", "sNssaiSmfInfoList": [], "taiList": [], "taiRangeList": [] }, "udmInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "routingIndicators": [], "supiRanges": [] }, "udrInfo": { "externalGroupIdentifiersRanges": [], "gpsiRanges": [], "groupId": "", "supiRanges": [], "supportedDataSets": [] }, "upfInfo": { "interfaceUpfInfoList": [], "iwkEpsInd": false, "pduSessionTypes": [], "sNssaiUpfInfoList": [], "smfServingArea": [] } }
-
 
                 try {
                     // WHEN
@@ -197,7 +197,7 @@ describe('NSSF', function () {
                     loge(">>>>>>>>>> error: ", error)
                     throw (error)
                 }
-            });
+            }, 5000);
 
             it('general\'nin Bilgileri çekilir', async function () {
                 // GIVEN
@@ -656,7 +656,7 @@ describe('NSSF', function () {
     });
 
     describe('Configuration', function () {
-        
+
         let argsMaster = [...argsCommon, '--dest=localhost:8102'];
         describe('NSI Slice', function () {
 
@@ -798,7 +798,7 @@ describe('NSSF', function () {
                 var newData = { "name": randomName, "nrfAccessTokenUri": "token_uri", "nrfId": "123", "nrfNfMgtUri": "123", "nsiId": "123", "targetAmfSets": [{ "regionId": "12", "setId": "12", "setFqdn": "" }] }
 
                 var args = [
-                    ...argsMaster.filter(a=>!(a.startsWith('--loglevel')||a.startsWith('-q')))
+                    ...argsMaster.filter(a => !(a.startsWith('--loglevel') || a.startsWith('-q')))
                     , '--loglevel=debug'
                     , '--data', `'${JSON.stringify(newData)}'`
                     , 'set', 'nsiprofiles'
@@ -828,14 +828,14 @@ describe('NSSF', function () {
                 const newData = { "name": randomName, "nrfAccessTokenUri": "token_uri", "nrfId": "123", "nrfNfMgtUri": "123", "nsiId": "123", "targetAmfSets": [{ "regionId": "12", "setId": "12", "setFqdn": "" }] }
 
                 const argsSet = [
-                    ...argsMaster.filter(a=>!(a.startsWith('--loglevel')||a.startsWith('-q')))
+                    ...argsMaster.filter(a => !(a.startsWith('--loglevel') || a.startsWith('-q')))
                     , '--loglevel=debug'
                     , '--data', `'${JSON.stringify(newData)}'`
                     , 'set', 'nsiprofiles'
                 ];
 
                 const argsDelete = [
-                    ...argsMaster.filter(a=>!(a.startsWith('--loglevel')||a.startsWith('-q')))
+                    ...argsMaster.filter(a => !(a.startsWith('--loglevel') || a.startsWith('-q')))
                     , '--loglevel=debug'
                     , '--data', `'${randomName}'`
                     , 'delete', 'nsiprofiles'
@@ -892,7 +892,7 @@ describe('NSSF', function () {
                 }
 
                 const argsSet = [
-                    ...argsMaster.filter(a=>!(a.startsWith('--loglevel')||a.startsWith('-q')))
+                    ...argsMaster.filter(a => !(a.startsWith('--loglevel') || a.startsWith('-q')))
                     , '--loglevel=debug'
                     , '--data', `'${JSON.stringify(newData)}'`
                     , 'set', 'nssrules'
@@ -942,14 +942,14 @@ describe('NSSF', function () {
                 }
 
                 const argsSet = [
-                    ...argsMaster.filter(a=>!(a.startsWith('--loglevel')||a.startsWith('-q')))
+                    ...argsMaster.filter(a => !(a.startsWith('--loglevel') || a.startsWith('-q')))
                     , '--loglevel=debug'
                     , '--data', `'${JSON.stringify(newData)}'`
                     , 'set', 'nssrules'
                 ];
 
                 const argsDelete = [
-                    ...argsMaster.filter(a=>!(a.startsWith('--loglevel')||a.startsWith('-q')))
+                    ...argsMaster.filter(a => !(a.startsWith('--loglevel') || a.startsWith('-q')))
                     , '--loglevel=debug'
                     , '--data', `'${randomName}'`
                     , 'delete', 'nssrules'
@@ -995,7 +995,7 @@ describe('NSSF', function () {
                 }
 
                 const argsSet = [
-                    ...argsMaster.filter(a=>!(a.startsWith('--loglevel')||a.startsWith('-q')))
+                    ...argsMaster.filter(a => !(a.startsWith('--loglevel') || a.startsWith('-q')))
                     , '--loglevel=debug'
                     , '--data', `'${JSON.stringify(newData)}'`
                     , 'set', 'configurednssai'
@@ -1070,4 +1070,4 @@ describe('NSSF', function () {
             });
         });
     });
-});
+}, 30000);

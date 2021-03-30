@@ -41,7 +41,6 @@ process.env.LOG_LEVEL = !!argv.q ? 'nolog' : (argv.loglevel || argv.l || 'info')
 
 
 function getPinoDebugOptions(_logLevel = process.env.LOG_LEVEL) {
-    console.log('>>> getPinoDebugOptions > _logLevel: ', _logLevel)
     var clonePinoDebugOptions = { ...pinoDebugOptions }
     if (process.env.LOG_LEVEL == 'nolog') {
         clonePinoDebugOptions.map = {}

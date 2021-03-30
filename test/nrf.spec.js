@@ -17,7 +17,7 @@ var argsMaster = [
     , '--loglevel="info"'
 ];
 
-describe.only('NRF', function () {
+describe('NRF', function () {
 
     const nfJsFilePath = './src/nrf.js'
     const outputFilePath = './cikti.txt'
